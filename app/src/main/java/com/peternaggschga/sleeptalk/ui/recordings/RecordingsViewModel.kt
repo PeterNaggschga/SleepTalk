@@ -1,13 +1,13 @@
-package com.peternaggschga.sleeptalk.ui.dashboard
+package com.peternaggschga.sleeptalk.ui.recordings
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class DashboardViewModel : ViewModel() {
+class RecordingsViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is dashboard Fragment"
+        value = "This is recordings Fragment"
     }
     val text: LiveData<String> = _text
 }

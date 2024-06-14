@@ -1,4 +1,4 @@
-package com.peternaggschga.sleeptalk.ui.dashboard
+package com.peternaggschga.sleeptalk.ui.recordings
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.peternaggschga.sleeptalk.databinding.FragmentDashboardBinding
+import com.peternaggschga.sleeptalk.databinding.FragmentRecordingsBinding
 
-class DashboardFragment : Fragment() {
+class RecordingsFragment : Fragment() {
 
-    private var _binding: FragmentDashboardBinding? = null
+    private var _binding: FragmentRecordingsBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -22,14 +22,14 @@ class DashboardFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        val dashboardViewModel =
-                ViewModelProvider(this).get(DashboardViewModel::class.java)
+        val recordingsViewModel =
+                ViewModelProvider(this).get(RecordingsViewModel::class.java)
 
-        _binding = FragmentDashboardBinding.inflate(inflater, container, false)
+        _binding = FragmentRecordingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textDashboard
-        dashboardViewModel.text.observe(viewLifecycleOwner) {
+        val textView: TextView = binding.textRecordings
+        recordingsViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
         return root
