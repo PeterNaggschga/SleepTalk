@@ -17,13 +17,9 @@ class RecordingsFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View {
-        val recordingsViewModel =
-                ViewModelProvider(this).get(RecordingsViewModel::class.java)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View {
+        val recordingsViewModel = ViewModelProvider(this)[RecordingsViewModel::class.java]
 
         _binding = FragmentRecordingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
