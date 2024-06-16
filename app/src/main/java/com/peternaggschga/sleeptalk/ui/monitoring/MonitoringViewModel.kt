@@ -1,13 +1,13 @@
-package com.peternaggschga.sleeptalk.ui.home
+package com.peternaggschga.sleeptalk.ui.monitoring
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class HomeViewModel : ViewModel() {
+class MonitoringViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is home Fragment"
+        value = "This is monitoring Fragment"
     }
     val text: LiveData<String> = _text
 }

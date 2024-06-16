@@ -1,4 +1,4 @@
-package com.peternaggschga.sleeptalk.ui.home
+package com.peternaggschga.sleeptalk.ui.monitoring
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.peternaggschga.sleeptalk.databinding.FragmentHomeBinding
+import com.peternaggschga.sleeptalk.databinding.FragmentMonitoringBinding
 
-class HomeFragment : Fragment() {
+class MonitoringFragment : Fragment() {
 
-    private var _binding: FragmentHomeBinding? = null
+    private var _binding: FragmentMonitoringBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -19,13 +19,13 @@ class HomeFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        val homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
+        val monitoringViewModel = ViewModelProvider(this)[MonitoringViewModel::class.java]
 
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentMonitoringBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner) {
+        val textView: TextView = binding.textMonitoring
+        monitoringViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
         return root
