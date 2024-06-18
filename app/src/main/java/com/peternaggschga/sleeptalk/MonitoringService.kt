@@ -16,6 +16,7 @@ class MonitoringService : Service() {
     companion object {
         const val NOTIFICATION_ID = 1
         const val CHANNEL_ID = "MonitoringServiceChannel"
+        const val INTENT_TIME_EXTRA_TAG = "Time"
     }
 
     override fun onBind(intent: Intent?): IBinder? {

@@ -1,6 +1,7 @@
 package com.peternaggschga.sleeptalk.ui.monitoring
 
 import android.content.Intent
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -32,7 +33,12 @@ class MonitoringFragment : Fragment() {
         }
 
         binding.buttonMonitoring.setOnClickListener {
-            activity?.startService(Intent(activity, MonitoringService::class.java))
+            val intent = Intent(activity, MonitoringService::class.java).apply {
+                val calendar = Calendar.getInstance()
+                calendar.add(Calendar.MINUTE, 1)
+                putExtra(MonitoringService.INTENT_TIME_EXTRA_TAG, calendar.time)
+            }
+            activity?.startService(intent)
         }
 
         return root
