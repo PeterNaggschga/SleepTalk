@@ -9,10 +9,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
+import android.os.Bundle
 import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
+import android.os.Message
 import android.os.Process
+import android.os.SystemClock
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
@@ -90,7 +93,18 @@ class MonitoringService : Service() {
             }
         )
 
-        TODO("call handler")
+        Message.obtain(
+            handler,
+            MonitoringServiceHandler.MESSAGE_ID_START_RECORDING,
+            Bundle().apply {
+                putLong(
+                    MonitoringServiceHandler.MESSAGE_ATTRIBUTE_TIME,
+                    intent.getLongExtra(INTENT_TIME_EXTRA_TAG, SystemClock.uptimeMillis())
+                )
+            }
+        ).sendToTarget()
+
+        TODO("stop AudioRecord after timeout")
 
         return START_REDELIVER_INTENT
     }
