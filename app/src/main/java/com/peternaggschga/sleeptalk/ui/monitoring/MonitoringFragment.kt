@@ -1,12 +1,16 @@
 package com.peternaggschga.sleeptalk.ui.monitoring
 
+import android.Manifest
+import android.app.Activity
 import android.content.Intent
-import android.icu.util.Calendar
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.peternaggschga.sleeptalk.MonitoringService
@@ -33,10 +37,31 @@ class MonitoringFragment : Fragment() {
         }
 
         binding.buttonMonitoring.setOnClickListener {
+            if (ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.RECORD_AUDIO
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+
+                ActivityCompat.requestPermissions(
+                    activity as Activity,
+                    arrayOf(Manifest.permission.RECORD_AUDIO),
+                    0
+                )
+            }
+
             val intent = Intent(activity, MonitoringService::class.java).apply {
-                val calendar = Calendar.getInstance()
-                calendar.add(Calendar.MINUTE, 1)
-                putExtra(MonitoringService.INTENT_TIME_EXTRA_TAG, calendar.time)
+                putExtra(
+                    MonitoringService.INTENT_TIME_EXTRA_TAG,
+                    SystemClock.uptimeMillis() + 60 * 1000
+                )
             }
             activity?.startService(intent)
         }
