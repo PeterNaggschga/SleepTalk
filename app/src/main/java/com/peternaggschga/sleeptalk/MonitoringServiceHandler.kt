@@ -19,7 +19,7 @@ import java.nio.ByteBuffer
 class MonitoringServiceHandler(looper: Looper, context: Context) : Handler(looper) {
     companion object {
         const val MESSAGE_ID_START_RECORDING = 0
-        const val MESSAGE_ATTRIBUTE_TIME = "StopTime"
+        const val MESSAGE_ID_STOP_RECORDING = 1
     }
 
     private val audioRecord: AudioRecord
@@ -80,27 +80,16 @@ class MonitoringServiceHandler(looper: Looper, context: Context) : Handler(loope
 
     override fun handleMessage(msg: Message) {
         when (msg.what) {
-            MESSAGE_ID_START_RECORDING -> {
-                val stopTime = msg.data.getLong("StopTime")
-                if (stopTime <= 0) {
-                    throw IllegalArgumentException("Message must contain non-negative value at $MESSAGE_ATTRIBUTE_TIME!")
-                }
-                record(stopTime)
-            }
-
+            MESSAGE_ID_START_RECORDING -> record()
+            MESSAGE_ID_STOP_RECORDING -> audioRecord.stop()
             else -> throw IllegalArgumentException("Type of message unknown: " + msg.what)
         }
     }
 
-    private fun record(endOfRecording: Long) {
-        Handler(Looper.getMainLooper()).postAtTime({
-            Log.d("MonitoringService", "stop")
-            audioRecord.stop()
-        }, endOfRecording)
-
+    private fun record() {
         val audioBuffer = ByteBuffer.allocateDirect(4 * audioRecord.bufferSizeInFrames)
 
-        Log.d("MonitoringService", "start $endOfRecording")
+        Log.d("MonitoringService", "start")
 
         audioRecord.startRecording()
         while (audioRecord.recordingState != AudioRecord.RECORDSTATE_STOPPED) {

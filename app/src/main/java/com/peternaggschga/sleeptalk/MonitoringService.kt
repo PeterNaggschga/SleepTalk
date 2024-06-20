@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
-import android.os.Bundle
 import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
@@ -96,15 +95,17 @@ class MonitoringService : Service() {
         Message.obtain(
             handler,
             MonitoringServiceHandler.MESSAGE_ID_START_RECORDING,
-            Bundle().apply {
-                putLong(
-                    MonitoringServiceHandler.MESSAGE_ATTRIBUTE_TIME,
-                    intent.getLongExtra(INTENT_TIME_EXTRA_TAG, SystemClock.uptimeMillis())
-                )
-            }
         ).sendToTarget()
 
-        TODO("stop AudioRecord after timeout")
+        val stopMessage = Message.obtain(
+            handler,
+            MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING
+        )
+
+        handler.sendMessageAtTime(
+            stopMessage,
+            intent.getLongExtra(INTENT_TIME_EXTRA_TAG, SystemClock.uptimeMillis())
+        )
 
         return START_REDELIVER_INTENT
     }
