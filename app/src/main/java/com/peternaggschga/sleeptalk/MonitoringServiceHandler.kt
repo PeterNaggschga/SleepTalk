@@ -82,8 +82,8 @@ class MonitoringServiceHandler(looper: Looper, context: Context) : Handler(loope
         when (msg.what) {
             MESSAGE_ID_START_RECORDING -> {
                 val stopTime = msg.data.getLong("StopTime")
-                if (stopTime == 0L) {
-                    throw IllegalArgumentException("Message must contain value at $MESSAGE_ATTRIBUTE_TIME!")
+                if (stopTime <= 0) {
+                    throw IllegalArgumentException("Message must contain non-negative value at $MESSAGE_ATTRIBUTE_TIME!")
                 }
                 record(stopTime)
             }
