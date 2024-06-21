@@ -1,9 +1,6 @@
 package com.peternaggschga.sleeptalk.domain.monitoring
 
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
@@ -12,18 +9,13 @@ import android.os.HandlerThread
 import android.os.Message
 import android.os.Process
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import com.peternaggschga.sleeptalk.MainActivity
-import com.peternaggschga.sleeptalk.R
 
 class MonitoringService : LifecycleService() {
 
     companion object {
-        const val NOTIFICATION_ID = 1
-        const val CHANNEL_ID = "MonitoringServiceChannel"
         const val INTENT_TIME_EXTRA_TAG = "Time"
     }
 
@@ -49,38 +41,10 @@ class MonitoringService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // TODO: make channel attributes more verbose
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Name",
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "Description"
-            }
-            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        val notificationIntent = Intent(this, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        }
-
-        val notificationPendingIntent =
-            PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
-
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_dashboard_black_24dp)   // TODO: create icon drawable resource
-            .setContentTitle("MonitoringService")               // TODO: create string resource
-            .setContentText("MonitoringService running")        // TODO: create string resource
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setContentIntent(notificationPendingIntent)
-            .build()
-
         ServiceCompat.startForeground(
             this,
-            NOTIFICATION_ID,
-            notification,
+            MonitoringServiceNotificationFactory.NOTIFICATION_ID,
+            MonitoringServiceNotificationFactory.getNotification(this),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
             } else {
