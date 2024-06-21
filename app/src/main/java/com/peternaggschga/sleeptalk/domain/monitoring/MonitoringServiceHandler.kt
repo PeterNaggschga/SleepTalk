@@ -1,4 +1,4 @@
-package com.peternaggschga.sleeptalk
+package com.peternaggschga.sleeptalk.domain.monitoring
 
 import android.Manifest
 import android.content.Context

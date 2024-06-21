@@ -1,4 +1,4 @@
-package com.peternaggschga.sleeptalk
+package com.peternaggschga.sleeptalk.domain.monitoring
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -16,6 +16,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import com.peternaggschga.sleeptalk.MainActivity
+import com.peternaggschga.sleeptalk.R
 
 class MonitoringService : LifecycleService() {
 

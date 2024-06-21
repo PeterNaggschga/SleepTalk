@@ -13,8 +13,8 @@ import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.peternaggschga.sleeptalk.MonitoringService
 import com.peternaggschga.sleeptalk.databinding.FragmentMonitoringBinding
+import com.peternaggschga.sleeptalk.domain.monitoring.MonitoringService
 
 class MonitoringFragment : Fragment() {
 

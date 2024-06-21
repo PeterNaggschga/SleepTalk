@@ -29,7 +29,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".MonitoringService"
+            android:name=".domain.monitoring.MonitoringService"
             android:exported="false"
             android:foregroundServiceType="microphone" />
         <!-- TODO: service description -->
