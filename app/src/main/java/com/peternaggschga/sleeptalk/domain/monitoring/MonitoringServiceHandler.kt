@@ -1,19 +1,12 @@
 package com.peternaggschga.sleeptalk.domain.monitoring
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.media.AudioFormat
-import android.media.AudioManager
 import android.media.AudioRecord
-import android.media.MediaRecorder
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.os.SystemClock
 import android.util.Log
-import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -32,61 +25,7 @@ class MonitoringServiceHandler(
         const val MESSAGE_ID_STOP_RECORDING = 1
     }
 
-    private val audioRecord: AudioRecord
-
-    init {
-        // TODO: move building of audioRecord to BuildManager class
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            throw SecurityException("Handler can only be created if the RECORD_AUDIO permission has been granted!")
-        }
-
-        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-        val sampleRate = 44100
-        val channelConfig = AudioFormat.CHANNEL_IN_MONO
-        val encoding = AudioFormat.ENCODING_PCM_FLOAT
-
-        val audioRecordBuilder = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            AudioRecord.Builder().setContext(context)
-        } else {
-            AudioRecord.Builder()
-        })
-
-        audioRecordBuilder.setAudioSource(
-            if (audioManager.getProperty(AudioManager.PROPERTY_SUPPORT_AUDIO_SOURCE_UNPROCESSED)
-                    .toBoolean()
-            ) {
-                MediaRecorder.AudioSource.UNPROCESSED
-            } else {
-                MediaRecorder.AudioSource.VOICE_RECOGNITION
-            }
-        )
-
-        audioRecordBuilder.setAudioFormat(
-            AudioFormat.Builder()
-                .setSampleRate(sampleRate)
-                .setEncoding(encoding)
-                .build()
-        )
-
-        audioRecordBuilder.setBufferSizeInBytes(
-            64 * AudioRecord.getMinBufferSize(
-                sampleRate,
-                channelConfig,
-                encoding
-            )
-        )
-
-        audioRecord = audioRecordBuilder.build()
-
-        if (audioRecord.state == AudioRecord.STATE_UNINITIALIZED) {
-            throw IllegalStateException("AudioRecord could not be initialized!")
-        }
-    }
+    private val audioRecord = AudioRecordFactory.getAudioRecord(context)
 
     private var recordingJob: Job? = null
 
