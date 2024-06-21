@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.HandlerThread
-import android.os.Looper
 import android.os.Message
 import android.os.Process
 import androidx.core.app.ActivityCompat
@@ -26,7 +25,6 @@ class MonitoringService : LifecycleService() {
         const val INTENT_TIME_EXTRA_TAG = "Time"
     }
 
-    private lateinit var looper: Looper
     private lateinit var handler: MonitoringServiceHandler
 
     override fun onCreate() {
@@ -42,7 +40,6 @@ class MonitoringService : LifecycleService() {
 
         HandlerThread("MonitoringServiceThread", Process.THREAD_PRIORITY_AUDIO).apply {
             start()
-            this@MonitoringService.looper = looper
             handler = MonitoringServiceHandler(this@MonitoringService, looper, lifecycleScope)
         }
     }
@@ -89,10 +86,7 @@ class MonitoringService : LifecycleService() {
             }
         )
 
-        Message.obtain(
-            handler,
-            MonitoringServiceHandler.MESSAGE_ID_START_RECORDING,
-        ).sendToTarget()
+        handler.sendEmptyMessage(MonitoringServiceHandler.MESSAGE_ID_START_RECORDING)
 
         val stopMessage = Message.obtain(
             handler,
@@ -109,8 +103,14 @@ class MonitoringService : LifecycleService() {
         return START_REDELIVER_INTENT
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.sendEmptyMessage(MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING)
+        handler.looper.quitSafely()
+    }
+
     override fun stopService(name: Intent?): Boolean {
-        TODO("send Stop-Message")
+        handler.sendEmptyMessage(MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING)
         return super.stopService(name)
     }
 }
