@@ -37,7 +37,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -49,4 +48,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // LifecycleAware CoroutineScopes
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    // Coroutine scopes for Services
+    implementation(libs.androidx.lifecycle.service)
 }
