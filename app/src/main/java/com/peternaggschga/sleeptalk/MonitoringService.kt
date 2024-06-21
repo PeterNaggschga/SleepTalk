@@ -4,22 +4,21 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.HandlerThread
-import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.os.Process
-import android.os.SystemClock
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
 
-class MonitoringService : Service() {
+class MonitoringService : LifecycleService() {
 
     companion object {
         const val NOTIFICATION_ID = 1
@@ -31,6 +30,7 @@ class MonitoringService : Service() {
     private lateinit var handler: MonitoringServiceHandler
 
     override fun onCreate() {
+        super.onCreate()
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.RECORD_AUDIO
@@ -43,15 +43,12 @@ class MonitoringService : Service() {
         HandlerThread("MonitoringServiceThread", Process.THREAD_PRIORITY_AUDIO).apply {
             start()
             this@MonitoringService.looper = looper
-            handler = MonitoringServiceHandler(looper, this@MonitoringService)
+            handler = MonitoringServiceHandler(this@MonitoringService, looper, lifecycleScope)
         }
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
-
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // TODO: make channel attributes more verbose
@@ -102,11 +99,18 @@ class MonitoringService : Service() {
             MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING
         )
 
-        handler.sendMessageAtTime(
-            stopMessage,
-            intent.getLongExtra(INTENT_TIME_EXTRA_TAG, SystemClock.uptimeMillis())
-        )
+        val stopTime = intent?.getLongExtra(INTENT_TIME_EXTRA_TAG, -1) ?: -1
+        if (stopTime <= 0) {
+            stopMessage.sendToTarget()
+        } else {
+            handler.sendMessageAtTime(stopMessage, stopTime)
+        }
 
         return START_REDELIVER_INTENT
+    }
+
+    override fun stopService(name: Intent?): Boolean {
+        TODO("send Stop-Message")
+        return super.stopService(name)
     }
 }
