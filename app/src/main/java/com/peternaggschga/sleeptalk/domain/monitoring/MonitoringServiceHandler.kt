@@ -13,9 +13,9 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.nio.ByteBuffer
 
 class MonitoringServiceHandler(
     private val caller: MonitoringService,
@@ -66,18 +66,31 @@ class MonitoringServiceHandler(
     }
 
     private suspend fun record() {
-        val audioBuffer = ByteBuffer.allocateDirect(4 * audioRecord.bufferSizeInFrames)
+        val channel = Channel<FloatArray>(60) // TODO: save as member constant of receiver
+        // TODO: create receiver
+
         Log.d("MonitoringService", "start")
 
         audioRecord.startRecording()
         while (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
-            val offset = withContext(blockingRecordingDispatcher) {
-                audioRecord.read(audioBuffer, 4 * 44100, AudioRecord.READ_BLOCKING)
+            // create buffer array for one second of PCM float values
+            val audioFrameBuffer = FloatArray(AudioRecordFactory.SAMPLE_RATE)
+
+            withContext(blockingRecordingDispatcher) {
+                // blocking read one second of PCM float values into the audioFrameBuffer
+                audioRecord.read(
+                    audioFrameBuffer,
+                    0,
+                    audioFrameBuffer.size,
+                    AudioRecord.READ_BLOCKING
+                )
             }
-            val byteArray = ByteArray(offset)
-            audioBuffer.get(byteArray, audioBuffer.position(), -audioBuffer.position())
+
+            channel.send(audioFrameBuffer)
+
             Log.d("Microphone output", SystemClock.uptimeMillis().toString())
         }
+
         Log.d("MonitoringService", "done")
     }
 }

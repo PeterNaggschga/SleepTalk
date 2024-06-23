@@ -20,7 +20,7 @@ import com.peternaggschga.sleeptalk.MainActivity
 import com.peternaggschga.sleeptalk.R
 
 object AudioRecordFactory {
-    private const val SAMPLE_RATE = 44100
+    const val SAMPLE_RATE = 44100
     private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
     private const val ENCODING = AudioFormat.ENCODING_PCM_FLOAT
 
