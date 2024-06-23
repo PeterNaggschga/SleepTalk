@@ -5,15 +5,12 @@ import android.media.AudioRecord
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.os.SystemClock
-import android.util.Log
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -66,12 +63,14 @@ class MonitoringServiceHandler(
     }
 
     private suspend fun record() {
-        val channel = Channel<FloatArray>(60) // TODO: save as member constant of receiver
-        // TODO: create receiver
+        val channel = AudioAccumulator.getInputChannel()
+        val accumulator = AudioAccumulator(channel)
 
-        Log.d("MonitoringService", "start")
-
+        val accumulationJob = recordingScope.launch {
+            accumulator.accumulate()
+        }
         audioRecord.startRecording()
+
         while (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
             // create buffer array for one second of PCM float values
             val audioFrameBuffer = FloatArray(AudioRecordFactory.SAMPLE_RATE)
@@ -87,10 +86,9 @@ class MonitoringServiceHandler(
             }
 
             channel.send(audioFrameBuffer)
-
-            Log.d("Microphone output", SystemClock.uptimeMillis().toString())
         }
 
-        Log.d("MonitoringService", "done")
+        channel.close()
+        accumulationJob.join()
     }
 }
