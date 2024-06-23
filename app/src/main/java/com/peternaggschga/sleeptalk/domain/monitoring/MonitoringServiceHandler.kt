@@ -7,18 +7,21 @@ import android.os.Looper
 import android.os.Message
 import android.os.SystemClock
 import android.util.Log
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
 
 class MonitoringServiceHandler(
     private val caller: MonitoringService,
     looper: Looper = Looper.getMainLooper(),
-    @OptIn(DelicateCoroutinesApi::class) private val recordingScope: CoroutineScope = GlobalScope
+    @OptIn(DelicateCoroutinesApi::class) private val recordingScope: CoroutineScope = GlobalScope,
+    private val blockingRecordingDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : Handler(looper) {
     companion object {
         const val MESSAGE_ID_START_RECORDING = 0
@@ -68,11 +71,12 @@ class MonitoringServiceHandler(
 
         audioRecord.startRecording()
         while (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
-            val offset = audioRecord.read(audioBuffer, 4 * 44100, AudioRecord.READ_BLOCKING)
+            val offset = withContext(blockingRecordingDispatcher) {
+                audioRecord.read(audioBuffer, 4 * 44100, AudioRecord.READ_BLOCKING)
+            }
             val byteArray = ByteArray(offset)
             audioBuffer.get(byteArray, audioBuffer.position(), -audioBuffer.position())
             Log.d("Microphone output", SystemClock.uptimeMillis().toString())
-            delay(800)
         }
         Log.d("MonitoringService", "done")
     }
