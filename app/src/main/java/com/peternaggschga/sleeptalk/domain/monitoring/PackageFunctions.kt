@@ -21,7 +21,7 @@ import com.peternaggschga.sleeptalk.R
 
 object AudioRecordFactory {
     private const val SAMPLE_RATE = 44100
-    private const val CHANNEL_CONFIG = AudioFormat.ENCODING_PCM_FLOAT
+    private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
     private const val ENCODING = AudioFormat.ENCODING_PCM_FLOAT
 
     fun getAudioRecord(context: Context): AudioRecord {
@@ -58,13 +58,13 @@ object AudioRecordFactory {
                 .build()
         )
 
-        audioRecordBuilder.setBufferSizeInBytes(
-            64 * AudioRecord.getMinBufferSize(
-                SAMPLE_RATE,
-                CHANNEL_CONFIG,
-                ENCODING
-            )
-        )
+        val minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, ENCODING)
+
+        when (minBufferSize) {
+            AudioRecord.ERROR_BAD_VALUE -> throw IllegalArgumentException("Recording parameters are not supported by the hardware!")
+            AudioRecord.ERROR -> throw IllegalAccessError("Hardware could not be queried for input properties and buffer sizes!")
+            else -> audioRecordBuilder.setBufferSizeInBytes(64 * minBufferSize)
+        }
 
         val audioRecord = audioRecordBuilder.build()
 
