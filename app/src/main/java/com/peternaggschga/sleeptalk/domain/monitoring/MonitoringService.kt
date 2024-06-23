@@ -56,7 +56,9 @@ class MonitoringService : LifecycleService() {
 
         val stopMessage = Message.obtain(
             handler,
-            MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING
+            MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING,
+            startId,
+            startId
         )
 
         val stopTime = intent?.getLongExtra(INTENT_TIME_EXTRA_TAG, -1) ?: -1

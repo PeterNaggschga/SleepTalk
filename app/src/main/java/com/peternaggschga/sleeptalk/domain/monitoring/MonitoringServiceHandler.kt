@@ -1,6 +1,6 @@
 package com.peternaggschga.sleeptalk.domain.monitoring
 
-import android.content.Context
+import android.app.Service
 import android.media.AudioRecord
 import android.os.Handler
 import android.os.Looper
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
 
 class MonitoringServiceHandler(
-    context: Context,
+    private val caller: MonitoringService,
     looper: Looper = Looper.getMainLooper(),
     @OptIn(DelicateCoroutinesApi::class) private val recordingScope: CoroutineScope = GlobalScope
 ) : Handler(looper) {
@@ -25,7 +25,7 @@ class MonitoringServiceHandler(
         const val MESSAGE_ID_STOP_RECORDING = 1
     }
 
-    private val audioRecord = AudioRecordFactory.getAudioRecord(context)
+    private val audioRecord = AudioRecordFactory.getAudioRecord(caller)
 
     private var recordingJob: Job? = null
 
@@ -39,16 +39,26 @@ class MonitoringServiceHandler(
             }
 
             MESSAGE_ID_STOP_RECORDING -> {
+                val startId = msg.arg1
                 if (recordingJob?.isActive == true) {
                     recordingScope.launch {
                         audioRecord.stop()
                         recordingJob?.join()
                         audioRecord.release()
                         recordingJob = null
+                        stopCaller(startId)
                     }
+                } else {
+                    stopCaller(startId)
                 }
             }
             else -> throw IllegalArgumentException("Type of message unknown: " + msg.what)
+        }
+    }
+
+    private fun stopCaller(startId: Int) {
+        if (startId > 0 && caller.stopSelfResult(startId)) {
+            caller.stopForeground(Service.STOP_FOREGROUND_REMOVE)
         }
     }
 
