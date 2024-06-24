@@ -66,9 +66,7 @@ class MonitoringServiceHandler(
         val channel = AudioAccumulator.getInputChannel()
         val accumulator = AudioAccumulator(channel)
 
-        val accumulationJob = recordingScope.launch {
-            accumulator.accumulate()
-        }
+        val accumulationJob = accumulator.accumulate(recordingScope)
         audioRecord.startRecording()
 
         while (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
