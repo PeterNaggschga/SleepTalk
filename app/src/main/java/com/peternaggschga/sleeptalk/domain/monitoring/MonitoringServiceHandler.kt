@@ -23,6 +23,7 @@ class MonitoringServiceHandler(
     companion object {
         const val MESSAGE_ID_START_RECORDING = 0
         const val MESSAGE_ID_STOP_RECORDING = 1
+        const val SECONDS_PER_FRAME = 1
     }
 
     private val audioRecord = AudioRecordFactory.getAudioRecord(caller)
@@ -71,7 +72,7 @@ class MonitoringServiceHandler(
 
         while (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
             // create buffer array for one second of PCM float values
-            val audioFrameBuffer = FloatArray(AudioRecordFactory.SAMPLE_RATE)
+            val audioFrameBuffer = FloatArray(AudioRecordFactory.SAMPLE_RATE * SECONDS_PER_FRAME)
 
             withContext(blockingRecordingDispatcher) {
                 // blocking read one second of PCM float values into the audioFrameBuffer
