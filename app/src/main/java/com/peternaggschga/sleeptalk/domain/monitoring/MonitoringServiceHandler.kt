@@ -71,11 +71,11 @@ class MonitoringServiceHandler(
         audioRecord.startRecording()
 
         while (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
-            // create buffer array for one second of PCM float values
+            // create buffer array for SECONDS_PER_FRAME seconds of PCM float values
             val audioFrameBuffer = FloatArray(AudioRecordFactory.SAMPLE_RATE * SECONDS_PER_FRAME)
 
             withContext(blockingRecordingDispatcher) {
-                // blocking read one second of PCM float values into the audioFrameBuffer
+                // blocking read SECONDS_PER_FRAME seconds of PCM float values into the audioFrameBuffer
                 audioRecord.read(
                     audioFrameBuffer,
                     0,
