@@ -64,9 +64,9 @@ class MonitoringServiceHandler(
 
     private suspend fun record() {
         val channel = AudioAccumulator.getInputChannel()
-        val accumulator = AudioAccumulator(channel)
+        val accumulator = AudioAccumulator(channel, recordingScope)
 
-        val accumulationJob = accumulator.accumulate(recordingScope)
+        val accumulationJob = accumulator.accumulate()
         audioRecord.startRecording()
 
         while (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
