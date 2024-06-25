@@ -7,6 +7,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.max
 
 class AudioAccumulator(
     private val inputChannel: Channel<FloatArray>,
@@ -18,7 +20,10 @@ class AudioAccumulator(
         fun getInputChannel() = Channel<FloatArray>(INPUT_CHANNEL_BUFFER_SIZE)
     }
 
+    private lateinit var distribution: Distribution
+
     suspend fun accumulate() = calculationScope.launch {
+        distribution = Distribution()
         for (element in inputChannel) {
             ensureActive()
             processElement(element)
@@ -26,6 +31,15 @@ class AudioAccumulator(
     }
 
     private fun processElement(element: FloatArray) {
-        Log.d("AudioAccumulator", "element $element received!")
+        val maxValue = max(
+            abs(element.max()),
+            abs(element.min())
+        )
+        distribution.addValue(maxValue.toDouble())
+
+        Log.d(
+            "AudioAccumulator",
+            "Distribution: maxValue = $maxValue, n = ${distribution.numberOfValues}, mean = ${distribution.mean}, stddev = ${distribution.stddev}"
+        )
     }
 }
