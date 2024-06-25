@@ -12,6 +12,8 @@ class Distribution {
         private set
     val variance get() = if (numberOfValues < 2) 0.0 else m2 / (numberOfValues - 1)
     val stddev get() = sqrt(variance)
+    var max = 0.0
+        private set
 
     private var m2 = 0.0
 
@@ -20,5 +22,9 @@ class Distribution {
         val delta = value - mean
         mean += delta / numberOfValues
         m2 += delta * (value - mean)
+
+        if (value > max) {
+            max = value
+        }
     }
 }
