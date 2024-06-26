@@ -53,4 +53,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     // Coroutine scopes for Services
     implementation(libs.androidx.lifecycle.service)
+    // running mean and stddev
+    implementation(libs.commons.math4.core)
 }
