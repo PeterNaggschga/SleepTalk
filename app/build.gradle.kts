@@ -54,5 +54,5 @@ dependencies {
     // Coroutine scopes for Services
     implementation(libs.androidx.lifecycle.service)
     // running mean and stddev
-    implementation(libs.commons.math4.core)
+    implementation(libs.commons.math3)
 }
