@@ -1,5 +1,6 @@
 package com.peternaggschga.sleeptalk.domain.monitoring
 
+import android.os.SystemClock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -21,15 +22,29 @@ class AudioAccumulator(
 
     suspend fun accumulate() = calculationScope.launch {
         signalDetection = SignalDetection()
+        val currentRecordingsList = mutableListOf<Recording>()
+
         for (element in inputChannel) {
             ensureActive()
 
-            val recording = Recording(element, signalDetection.n)
+            val recording =
+                Recording(element, SystemClock.uptimeMillis()) // TODO: give more accurate timestamp
             signalDetection.addValue(recording.maxValue.toDouble())
 
             if (signalDetection.currentSignal) {
-                TODO()
+                currentRecordingsList.add(recording)
+            } else if (currentRecordingsList.isNotEmpty()) {
+                saveRecordings(currentRecordingsList)
+                currentRecordingsList.clear()
             }
         }
+
+        if (currentRecordingsList.isNotEmpty()) {
+            saveRecordings(currentRecordingsList)
+        }
+    }
+
+    private fun saveRecordings(recordingList: List<Recording>) {
+        TODO()
     }
 }
