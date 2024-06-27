@@ -5,12 +5,15 @@ import kotlin.math.max
 
 data class Recording(
     val frame: FloatArray,
-    val timestamp: Long // TODO: get actual Timestamp when this second was recorded
+    private val timestamp: Long
 ) {
     val maxValue = max(
         abs(frame.max()),
         abs(frame.min())
     )
+
+    val start get() = timestamp
+    val end get() = timestamp + 1000 * MonitoringServiceHandler.SECONDS_PER_FRAME
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
