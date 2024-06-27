@@ -5,6 +5,7 @@ import android.media.AudioRecord
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.os.SystemClock
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -67,7 +68,7 @@ class MonitoringServiceHandler(
         val channel = AudioAccumulator.getInputChannel()
         val accumulator = AudioAccumulator(channel, recordingScope)
 
-        val accumulationJob = accumulator.accumulate()
+        val accumulationJob = accumulator.accumulate(SystemClock.uptimeMillis())
         audioRecord.startRecording()
 
         while (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
