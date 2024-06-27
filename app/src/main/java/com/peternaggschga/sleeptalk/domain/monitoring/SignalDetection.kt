@@ -25,7 +25,7 @@ class SignalDetection(
         val signal = abs(value - stats.mean) > threshold * stats.standardDeviation
         addLagValue(
             if (signal)
-                value * influence
+                influence * value + (1 - influence) * lagValues.last()
             else
                 value
         )
