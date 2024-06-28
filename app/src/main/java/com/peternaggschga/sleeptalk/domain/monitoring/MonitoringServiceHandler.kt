@@ -1,11 +1,11 @@
 package com.peternaggschga.sleeptalk.domain.monitoring
 
 import android.app.Service
+import android.icu.util.Calendar
 import android.media.AudioRecord
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.os.SystemClock
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -68,8 +68,9 @@ class MonitoringServiceHandler(
         val channel = AudioAccumulator.getInputChannel()
         val accumulator = AudioAccumulator(channel, recordingScope)
 
-        val accumulationJob = accumulator.accumulate(SystemClock.uptimeMillis())
+        val recordingStart = Calendar.getInstance().timeInMillis
         audioRecord.startRecording()
+        val accumulationJob = accumulator.accumulate(recordingStart)
 
         while (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
             // create buffer array for SECONDS_PER_FRAME seconds of PCM float values
@@ -90,5 +91,11 @@ class MonitoringServiceHandler(
 
         channel.close()
         accumulationJob.join()
+
+        accumulator.recordings.forEach { recording -> saveRecordingToFiles(recording) }
+    }
+
+    private fun saveRecordingToFiles(recording: List<Recording>) {
+        TODO()
     }
 }
