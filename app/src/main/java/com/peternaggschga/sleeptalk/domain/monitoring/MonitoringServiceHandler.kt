@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 class MonitoringServiceHandler(
     private val caller: MonitoringService,
     looper: Looper = Looper.getMainLooper(),
+    private val nextProcessingStage: ProcessingStage,
     @OptIn(DelicateCoroutinesApi::class) private val recordingScope: CoroutineScope = GlobalScope,
     private val blockingRecordingDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : Handler(looper) {
@@ -92,10 +93,6 @@ class MonitoringServiceHandler(
         channel.close()
         accumulationJob.join()
 
-        accumulator.recordings.forEach { recording -> saveRecordingToFiles(recording) }
-    }
-
-    private fun saveRecordingToFiles(recording: List<Recording>) {
-        TODO()
+        accumulator.recordings.forEach { recording -> nextProcessingStage.process(recording) }
     }
 }

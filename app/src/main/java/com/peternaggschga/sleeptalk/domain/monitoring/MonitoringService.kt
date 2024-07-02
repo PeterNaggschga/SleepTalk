@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.icu.text.DateFormat
+import android.icu.util.Calendar
 import android.os.Build
 import android.os.HandlerThread
 import android.os.Message
@@ -12,11 +14,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import java.io.File
 
 class MonitoringService : LifecycleService() {
 
     companion object {
         const val INTENT_TIME_EXTRA_TAG = "Time"
+        const val RECORDINGS_DIRECTORY_NAME = "recordings"
     }
 
     private lateinit var handler: MonitoringServiceHandler
@@ -34,7 +38,23 @@ class MonitoringService : LifecycleService() {
 
         HandlerThread("MonitoringServiceThread", Process.THREAD_PRIORITY_AUDIO).apply {
             start()
-            handler = MonitoringServiceHandler(this@MonitoringService, looper, lifecycleScope)
+            val codec = WavCodec(File(filesDir, RECORDINGS_DIRECTORY_NAME))
+            val calendar = Calendar.getInstance()
+            handler = MonitoringServiceHandler(
+                this@MonitoringService,
+                looper,
+                { recordings ->
+                    val recordingArray = recordings.map { element -> element.frame }
+                        .reduce { acc, rec -> acc.plus(rec) }
+
+                    calendar.timeInMillis = recordings.first().start
+                    codec.savePcmToFile(
+                        recordingArray,
+                        DateFormat.getDateInstance().format(calendar.time)
+                    )
+                },
+                lifecycleScope
+            )
         }
     }
 
