@@ -14,7 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import com.peternaggschga.sleeptalk.domain.soundfiles.WavCodec
+import com.peternaggschga.sleeptalk.domain.soundfiles.Codec
 import java.io.File
 
 class MonitoringService : LifecycleService() {
@@ -39,7 +39,7 @@ class MonitoringService : LifecycleService() {
 
         HandlerThread("MonitoringServiceThread", Process.THREAD_PRIORITY_AUDIO).apply {
             start()
-            val codec = WavCodec(File(filesDir, RECORDINGS_DIRECTORY_NAME))
+            val codec = Codec.getCodec(File(filesDir, RECORDINGS_DIRECTORY_NAME))
             val calendar = Calendar.getInstance()
             handler = MonitoringServiceHandler(
                 this@MonitoringService,

@@ -6,6 +6,12 @@ import java.io.File
 import java.io.FileOutputStream
 
 abstract class Codec(private val rootDirectory: File) {
+    companion object {
+        fun getCodec(rootDirectory: File): Codec {
+            return WavCodec(rootDirectory)
+        }
+    }
+
     abstract val fileExtension: String
 
     fun savePcmToFile(pcm: FloatArray, fileName: String) {
