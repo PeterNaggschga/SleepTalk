@@ -1,5 +1,6 @@
-package com.peternaggschga.sleeptalk.domain.monitoring
+package com.peternaggschga.sleeptalk.domain.soundfiles
 
+import com.peternaggschga.sleeptalk.domain.monitoring.AudioRecordFactory
 import java.io.DataOutputStream
 import java.io.File
 import java.nio.ByteBuffer

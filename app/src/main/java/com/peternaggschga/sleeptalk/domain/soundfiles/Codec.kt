@@ -1,4 +1,4 @@
-package com.peternaggschga.sleeptalk.domain.monitoring
+package com.peternaggschga.sleeptalk.domain.soundfiles
 
 import java.io.BufferedOutputStream
 import java.io.DataOutputStream
