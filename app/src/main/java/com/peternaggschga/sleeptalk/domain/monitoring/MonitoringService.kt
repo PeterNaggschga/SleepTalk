@@ -4,7 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
-import android.icu.text.DateFormat
+import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.os.Build
 import android.os.HandlerThread
@@ -15,6 +15,7 @@ import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.peternaggschga.sleeptalk.domain.soundfiles.Codec
+import java.util.Locale
 
 class MonitoringService : LifecycleService() {
 
@@ -43,6 +44,7 @@ class MonitoringService : LifecycleService() {
                     ?: throw IllegalStateException("No shared storage available for recording!")
             )
             val calendar = Calendar.getInstance()
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.ENGLISH)
 
             handler = MonitoringServiceHandler(
                 this@MonitoringService,
@@ -54,7 +56,7 @@ class MonitoringService : LifecycleService() {
                     calendar.timeInMillis = recordings.first().start
                     codec.savePcmToFile(
                         recordingArray,
-                        DateFormat.getDateInstance().format(calendar.time)
+                        dateFormat.format(calendar.time)
                     )
                 },
                 lifecycleScope
