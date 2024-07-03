@@ -3,12 +3,14 @@ package com.peternaggschga.sleeptalk.domain.monitoring
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 
 class AudioAccumulator(
     private val inputChannel: Channel<FloatArray>,
+    private val nextProcessingStage: ProcessingStage,
     @OptIn(DelicateCoroutinesApi::class) private val calculationScope: CoroutineScope = GlobalScope
 ) {
     companion object {
@@ -20,8 +22,9 @@ class AudioAccumulator(
 
     private lateinit var signalDetection: SignalDetection
 
-    private val _recordings: MutableList<MutableList<Recording>> = mutableListOf()
-    val recordings get() = _recordings.map { mutableList -> mutableList.toList() }.toList()
+    private var processingJob: Job = Job().apply { complete() }
+
+    private var lastRecording: MutableList<Recording> = mutableListOf()
 
     suspend fun accumulate(recordingStartTime: Long) = calculationScope.launch {
         signalDetection = SignalDetection()
@@ -48,20 +51,31 @@ class AudioAccumulator(
         if (currentRecordingsList.isNotEmpty()) {
             saveRecordings(currentRecordingsList)
         }
+        if (lastRecording.isNotEmpty()) {
+            processNext(lastRecording)
+        }
+        processingJob.join()
     }
 
     private fun saveRecordings(newRecording: MutableList<Recording>) {
-        if (_recordings.isEmpty()) {
-            _recordings.add(newRecording)
+        if (lastRecording.isEmpty()) {
+            lastRecording.addAll(newRecording)
             return
         }
 
-        val lastRecording = _recordings.last()
         if (lastRecording.last().end + FRAME_CONNECTION_THRESHOLD >= newRecording.first().start) {
             // new recording is within FRAME_CONNECTION_THRESHOLD ms of last recording -> merge
             lastRecording.addAll(newRecording)
         } else {
-            _recordings.add(newRecording)
+            processNext(lastRecording)
+            lastRecording = newRecording
+        }
+    }
+
+    private fun processNext(recording: List<Recording>) {
+        processingJob = calculationScope.launch {
+            processingJob.join()
+            nextProcessingStage.process(recording)
         }
     }
 }

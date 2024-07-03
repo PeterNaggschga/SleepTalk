@@ -67,7 +67,7 @@ class MonitoringServiceHandler(
 
     private suspend fun record() {
         val channel = AudioAccumulator.getInputChannel()
-        val accumulator = AudioAccumulator(channel, recordingScope)
+        val accumulator = AudioAccumulator(channel, nextProcessingStage, recordingScope)
 
         val recordingStart = Calendar.getInstance().timeInMillis
         audioRecord.startRecording()
@@ -92,7 +92,5 @@ class MonitoringServiceHandler(
 
         channel.close()
         accumulationJob.join()
-
-        accumulator.recordings.forEach { recording -> nextProcessingStage.process(recording) }
     }
 }
