@@ -55,15 +55,15 @@ class MonitoringFragment : Fragment() {
                     arrayOf(Manifest.permission.RECORD_AUDIO),
                     0
                 )
+            } else {
+                val intent = Intent(activity, MonitoringService::class.java).apply {
+                    putExtra(
+                        MonitoringService.INTENT_TIME_EXTRA_TAG,
+                        SystemClock.uptimeMillis() + 60 * 1000 * 10
+                    )
+                }
+                activity?.startService(intent)
             }
-
-            val intent = Intent(activity, MonitoringService::class.java).apply {
-                putExtra(
-                    MonitoringService.INTENT_TIME_EXTRA_TAG,
-                    SystemClock.uptimeMillis() + 60 * 1000
-                )
-            }
-            activity?.startService(intent)
         }
 
         return root
