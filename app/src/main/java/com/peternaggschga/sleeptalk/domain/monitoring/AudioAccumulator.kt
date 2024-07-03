@@ -51,6 +51,11 @@ class AudioAccumulator(
     }
 
     private fun saveRecordings(newRecording: MutableList<Recording>) {
+        if (_recordings.isEmpty()) {
+            _recordings.add(newRecording)
+            return
+        }
+
         val lastRecording = _recordings.last()
         if (lastRecording.last().end + FRAME_CONNECTION_THRESHOLD >= newRecording.first().start) {
             // new recording is within FRAME_CONNECTION_THRESHOLD ms of last recording -> merge
