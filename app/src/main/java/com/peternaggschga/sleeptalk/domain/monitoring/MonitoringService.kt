@@ -15,13 +15,11 @@ import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.peternaggschga.sleeptalk.domain.soundfiles.Codec
-import java.io.File
 
 class MonitoringService : LifecycleService() {
 
     companion object {
         const val INTENT_TIME_EXTRA_TAG = "Time"
-        const val RECORDINGS_DIRECTORY_NAME = "recordings"
     }
 
     private lateinit var handler: MonitoringServiceHandler
@@ -39,8 +37,13 @@ class MonitoringService : LifecycleService() {
 
         HandlerThread("MonitoringServiceThread", Process.THREAD_PRIORITY_AUDIO).apply {
             start()
-            val codec = Codec.getCodec(File(filesDir, RECORDINGS_DIRECTORY_NAME))
+
+            val codec = Codec.getCodec(
+                getExternalFilesDir(null)
+                    ?: throw IllegalStateException("No shared storage available for recording!")
+            )
             val calendar = Calendar.getInstance()
+
             handler = MonitoringServiceHandler(
                 this@MonitoringService,
                 looper,
