@@ -3,27 +3,26 @@ package com.peternaggschga.sleeptalk.domain.monitoring
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 
 class AudioAccumulator(
     private val inputChannel: Channel<FloatArray>,
-    private val nextProcessingStage: ProcessingStage,
+    private val outputChannel: Channel<List<Recording>>,
     @OptIn(DelicateCoroutinesApi::class) private val calculationScope: CoroutineScope = GlobalScope
 ) {
     companion object {
-        private const val INPUT_CHANNEL_BUFFER_SIZE = 60
         private const val FRAME_CONNECTION_THRESHOLD =
             20 / MonitoringServiceHandler.SECONDS_PER_FRAME
+        private const val INPUT_CHANNEL_BUFFER_SIZE = 60
+        private const val OUTPUT_CHANNEL_BUFFER_SIZE = 5
 
         fun getInputChannel() = Channel<FloatArray>(INPUT_CHANNEL_BUFFER_SIZE)
+        fun getOutputChannel() = Channel<List<Recording>>(OUTPUT_CHANNEL_BUFFER_SIZE)
     }
 
     private lateinit var signalDetection: SignalDetection
-
-    private var processingJob: Job = Job().apply { complete() }
 
     suspend fun accumulate(recordingStartTime: Long) = calculationScope.launch {
         signalDetection = SignalDetection()
@@ -58,7 +57,7 @@ class AudioAccumulator(
                 } else {
                     // last interesting recording was long ago
                     // last interesting recording is saved
-                    saveRecordings(signalRecording.toList())
+                    outputChannel.send(signalRecording.toList())
                     signalRecording.clear()
                     // audio since last interesting recording is deleted
                     noSignalRecording.clear()
@@ -67,15 +66,8 @@ class AudioAccumulator(
         }
 
         if (signalRecording.isNotEmpty()) {
-            saveRecordings(signalRecording)
+            outputChannel.send(signalRecording)
         }
-        processingJob.join()
-    }
-
-    private fun saveRecordings(newRecording: List<Recording>) {
-        processingJob = calculationScope.launch {
-            processingJob.join()
-            nextProcessingStage.process(newRecording)
-        }
+        outputChannel.close()
     }
 }
