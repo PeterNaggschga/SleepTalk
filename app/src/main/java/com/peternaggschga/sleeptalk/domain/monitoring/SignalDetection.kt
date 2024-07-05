@@ -22,17 +22,13 @@ class SignalDetection(
             return
         }
 
-        val signal = abs(value - stats.mean) > threshold * stats.standardDeviation
+        currentSignal = abs(value - stats.mean) > threshold * stats.standardDeviation
         addLagValue(
-            if (signal)
+            if (currentSignal)
                 influence * value + (1 - influence) * lagValues.last()
             else
                 value
         )
-
-        if (signal != currentSignal) {
-            currentSignal = signal
-        }
     }
 
     private fun addLagValue(value: Double) {
