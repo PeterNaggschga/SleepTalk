@@ -15,7 +15,8 @@ class AudioAccumulator(
 ) {
     companion object {
         private const val INPUT_CHANNEL_BUFFER_SIZE = 60
-        private const val FRAME_CONNECTION_THRESHOLD = 20 * 1000
+        private const val FRAME_CONNECTION_THRESHOLD =
+            20 / MonitoringServiceHandler.SECONDS_PER_FRAME
 
         fun getInputChannel() = Channel<FloatArray>(INPUT_CHANNEL_BUFFER_SIZE)
     }
@@ -24,11 +25,10 @@ class AudioAccumulator(
 
     private var processingJob: Job = Job().apply { complete() }
 
-    private var lastRecording: MutableList<Recording> = mutableListOf()
-
     suspend fun accumulate(recordingStartTime: Long) = calculationScope.launch {
         signalDetection = SignalDetection()
-        val currentRecordingsList = mutableListOf<Recording>()
+        val signalRecording = mutableListOf<Recording>()
+        val noSignalRecording = mutableListOf<Recording>()
         var receivedValues = 0L
 
         for (element in inputChannel) {
@@ -41,41 +41,41 @@ class AudioAccumulator(
             signalDetection.addValue(recording.maxValue.toDouble())
 
             if (signalDetection.currentSignal) {
-                currentRecordingsList.add(recording)
-            } else if (currentRecordingsList.isNotEmpty()) {
-                saveRecordings(currentRecordingsList.toMutableList())
-                currentRecordingsList.clear()
+                // current recording is interesting
+                if (noSignalRecording.isNotEmpty()) {
+                    // last interesting recording is less than FRAME_CONNECTION_THRESHOLD seconds old
+                    // last interesting recording and this one are merged
+                    signalRecording.addAll(noSignalRecording)
+                    noSignalRecording.clear()
+                }
+                signalRecording.add(recording)
+            } else if (signalRecording.isNotEmpty()) {
+                // signal stopped but last interesting record was not saved yet
+                if (noSignalRecording.size < FRAME_CONNECTION_THRESHOLD) {
+                    // last interesting recording was recent
+                    // audio in between is saved
+                    noSignalRecording.add(recording)
+                } else {
+                    // last interesting recording was long ago
+                    // last interesting recording is saved
+                    saveRecordings(signalRecording.toList())
+                    signalRecording.clear()
+                    // audio since last interesting recording is deleted
+                    noSignalRecording.clear()
+                }
             }
         }
 
-        if (currentRecordingsList.isNotEmpty()) {
-            saveRecordings(currentRecordingsList)
-        }
-        if (lastRecording.isNotEmpty()) {
-            processNext(lastRecording)
+        if (signalRecording.isNotEmpty()) {
+            saveRecordings(signalRecording)
         }
         processingJob.join()
     }
 
-    private fun saveRecordings(newRecording: MutableList<Recording>) {
-        if (lastRecording.isEmpty()) {
-            lastRecording.addAll(newRecording)
-            return
-        }
-
-        if (lastRecording.last().end + FRAME_CONNECTION_THRESHOLD >= newRecording.first().start) {
-            // new recording is within FRAME_CONNECTION_THRESHOLD ms of last recording -> merge
-            lastRecording.addAll(newRecording)
-        } else {
-            processNext(lastRecording)
-            lastRecording = newRecording
-        }
-    }
-
-    private fun processNext(recording: List<Recording>) {
+    private fun saveRecordings(newRecording: List<Recording>) {
         processingJob = calculationScope.launch {
             processingJob.join()
-            nextProcessingStage.process(recording)
+            nextProcessingStage.process(newRecording)
         }
     }
 }
