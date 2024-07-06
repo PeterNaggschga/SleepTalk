@@ -13,7 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import com.peternaggschga.sleeptalk.databinding.FragmentMonitoringBinding
 import com.peternaggschga.sleeptalk.domain.monitoring.MonitoringService
 import com.peternaggschga.sleeptalk.domain.monitoring.SignalDetection
@@ -28,7 +28,7 @@ class MonitoringFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        val monitoringViewModel = ViewModelProvider(this)[MonitoringViewModel::class.java]
+        val monitoringViewModel: MonitoringViewModel by activityViewModels()
 
         _binding = FragmentMonitoringBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -39,8 +39,10 @@ class MonitoringFragment : Fragment() {
         }
 
         binding.buttonChooseTime.setOnClickListener {
-            TODO()
-            monitoringViewModel.endingTime = SystemClock.uptimeMillis() + 60 * 1000 * 10
+            TimePickerDialogFragment().show(
+                requireActivity().supportFragmentManager,
+                TimePickerDialogFragment.TAG
+            )
         }
 
         binding.buttonStartMonitoring.setOnClickListener {
