@@ -11,5 +11,10 @@ class MonitoringViewModel : ViewModel() {
     }
     val text: LiveData<String> = _text
 
-    var endingTime: Long? = null
+    private val _endingTime = MutableLiveData<Long>()
+    val endingTime: LiveData<Long> = _endingTime
+
+    fun setEndingTime(time: Long) {
+        _endingTime.value = time
+    }
 }

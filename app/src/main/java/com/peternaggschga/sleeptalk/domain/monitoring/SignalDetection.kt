@@ -6,26 +6,29 @@ import kotlin.math.abs
 /**
  * https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data
  */
-class SignalDetection(
-    private val lag: Int = 60 * 10 / MonitoringServiceHandler.SECONDS_PER_FRAME,
-    private val threshold: Double = 3.0,
-    private val influence: Double = 0.5
-) {
+class SignalDetection {
+    companion object {
+        const val LAG_SECONDS = 60 // TODO: * 10
+        const val LAG_FRAMES = LAG_SECONDS / MonitoringServiceHandler.SECONDS_PER_FRAME
+        const val THRESHOLD = 3.0
+        const val INFLUENCE = 0.5
+    }
+
     private val stats = SummaryStatistics()
     var currentSignal = false
         private set
-    private val lagValues: ArrayDeque<Double> = ArrayDeque(lag + 1)
+    private val lagValues: ArrayDeque<Double> = ArrayDeque(LAG_FRAMES + 1)
 
     fun addValue(value: Double) {
-        if (lagValues.size < lag) {
+        if (lagValues.size < LAG_FRAMES) {
             addLagValue(value)
             return
         }
 
-        currentSignal = abs(value - stats.mean) > threshold * stats.standardDeviation
+        currentSignal = abs(value - stats.mean) > THRESHOLD * stats.standardDeviation
         addLagValue(
             if (currentSignal)
-                influence * value + (1 - influence) * lagValues.last()
+                INFLUENCE * value + (1 - INFLUENCE) * lagValues.last()
             else
                 value
         )
@@ -33,7 +36,7 @@ class SignalDetection(
 
     private fun addLagValue(value: Double) {
         lagValues.addLast(value)
-        if (lagValues.size > lag) {
+        if (lagValues.size > LAG_FRAMES) {
             lagValues.removeFirst()
             stats.clear()
             lagValues.forEach { lagValue -> stats.addValue(lagValue) }

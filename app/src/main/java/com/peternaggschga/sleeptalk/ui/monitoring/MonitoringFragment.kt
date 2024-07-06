@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.peternaggschga.sleeptalk.databinding.FragmentMonitoringBinding
 import com.peternaggschga.sleeptalk.domain.monitoring.MonitoringService
+import com.peternaggschga.sleeptalk.domain.monitoring.SignalDetection
 
 class MonitoringFragment : Fragment() {
 
@@ -56,7 +57,9 @@ class MonitoringFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if ((monitoringViewModel.endingTime ?: 0) < SystemClock.uptimeMillis()) {
+            if ((monitoringViewModel.endingTime.value
+                    ?: 0) <= SystemClock.elapsedRealtime() + SignalDetection.LAG_SECONDS * 1000
+            ) {
                 Toast.makeText(
                     context,
                     "Please select how long you will be sleeping first!", // TODO: use string resource
@@ -69,7 +72,7 @@ class MonitoringFragment : Fragment() {
                 Intent(activity, MonitoringService::class.java).apply {
                     putExtra(
                         MonitoringService.INTENT_TIME_EXTRA_TAG,
-                        monitoringViewModel.endingTime
+                        monitoringViewModel.endingTime.value
                     )
                 }
             )
