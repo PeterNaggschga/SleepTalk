@@ -59,8 +59,8 @@ class MonitoringFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if ((monitoringViewModel.endingTime.value
-                    ?: 0) <= SystemClock.elapsedRealtime() + SignalDetection.LAG_SECONDS * 1000
+            if ((monitoringViewModel.endingTime.value ?: 0)
+                <= SystemClock.elapsedRealtime() + SignalDetection.LAG_SECONDS * 1000
             ) {
                 Toast.makeText(
                     context,
