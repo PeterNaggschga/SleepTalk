@@ -15,6 +15,9 @@ class MonitoringViewModel : ViewModel() {
     val endingTime: LiveData<Long> = _endingTime
 
     fun setEndingTime(time: Long) {
+        if (time < (endingTime.value ?: 0)) {
+            return
+        }
         _endingTime.value = time
     }
 }
