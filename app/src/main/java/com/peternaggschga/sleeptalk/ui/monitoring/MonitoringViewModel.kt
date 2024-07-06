@@ -10,4 +10,6 @@ class MonitoringViewModel : ViewModel() {
         value = "This is monitoring Fragment"
     }
     val text: LiveData<String> = _text
+
+    var endingTime: Long? = null
 }

@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -36,34 +37,37 @@ class MonitoringFragment : Fragment() {
             textView.text = it
         }
 
-        binding.buttonMonitoring.setOnClickListener {
+        binding.buttonStartMonitoring.setOnClickListener {
             if (ActivityCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.RECORD_AUDIO
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-
                 ActivityCompat.requestPermissions(
                     activity as Activity,
                     arrayOf(Manifest.permission.RECORD_AUDIO),
                     0
                 )
-            } else {
-                val intent = Intent(activity, MonitoringService::class.java).apply {
+                return@setOnClickListener
+            }
+
+            if ((monitoringViewModel.endingTime ?: 0) < SystemClock.uptimeMillis()) {
+                Toast.makeText(
+                    context,
+                    "Please select how long you will be sleeping first!", // TODO: use string resource
+                    Toast.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
+            }
+
+            activity?.startService(
+                Intent(activity, MonitoringService::class.java).apply {
                     putExtra(
                         MonitoringService.INTENT_TIME_EXTRA_TAG,
-                        SystemClock.uptimeMillis() + 60 * 1000 * 10
+                        monitoringViewModel.endingTime
                     )
                 }
-                activity?.startService(intent)
-            }
+            )
         }
 
         return root
