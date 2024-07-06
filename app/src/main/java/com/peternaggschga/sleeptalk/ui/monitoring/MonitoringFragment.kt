@@ -37,6 +37,11 @@ class MonitoringFragment : Fragment() {
             textView.text = it
         }
 
+        binding.buttonChooseTime.setOnClickListener {
+            TODO()
+            monitoringViewModel.endingTime = SystemClock.uptimeMillis() + 60 * 1000 * 10
+        }
+
         binding.buttonStartMonitoring.setOnClickListener {
             if (ActivityCompat.checkSelfPermission(
                     requireContext(),

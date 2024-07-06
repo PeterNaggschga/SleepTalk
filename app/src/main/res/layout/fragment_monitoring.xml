@@ -15,10 +15,20 @@
         android:layout_marginEnd="8dp"
         android:textAlignment="center"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@id/button_monitoring"
+        app:layout_constraintBottom_toTopOf="@id/button_choose_time"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_choose_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Choose time"
+        app:layout_constraintBottom_toTopOf="@id/button_start_monitoring"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_monitoring" />
 
     <Button
         android:id="@+id/button_start_monitoring"
@@ -28,5 +38,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_monitoring" />
+        app:layout_constraintTop_toBottomOf="@id/button_choose_time" />
 </androidx.constraintlayout.widget.ConstraintLayout>
