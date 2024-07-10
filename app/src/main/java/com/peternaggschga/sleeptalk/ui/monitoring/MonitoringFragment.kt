@@ -38,6 +38,17 @@ class MonitoringFragment : Fragment() {
             textView.text = it
         }
 
+        // TODO: persist MonitoringViewModel (observer stops when application is closed)
+
+        monitoringViewModel.endingTime.observe(
+            viewLifecycleOwner,
+            RemainingTimeViewAdapter(
+                monitoringViewModel,
+                binding.numberPickerHours,
+                binding.numberPickerMinutes
+            )
+        )
+
         binding.buttonChooseTime.setOnClickListener {
             TimePickerDialogFragment().show(
                 requireActivity().supportFragmentManager,
