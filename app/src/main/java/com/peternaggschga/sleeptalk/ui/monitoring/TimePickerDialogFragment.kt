@@ -10,7 +10,6 @@ import android.text.format.DateFormat
 import android.widget.TimePicker
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import com.peternaggschga.sleeptalk.domain.monitoring.SignalDetection
 
 class TimePickerDialogFragment : DialogFragment(), OnTimeSetListener {
     companion object {
@@ -27,21 +26,22 @@ class TimePickerDialogFragment : DialogFragment(), OnTimeSetListener {
         return TimePickerDialog(
             activity,
             this,
-            calendar[Calendar.HOUR],
+            calendar[Calendar.HOUR_OF_DAY],
             calendar[Calendar.MINUTE],
             DateFormat.is24HourFormat(activity)
         )
     }
 
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
+        val currentTime = Calendar.getInstance()
+
         val endCalendar = Calendar.getInstance()
-        endCalendar[Calendar.HOUR] = hourOfDay
-        endCalendar[Calendar.MINUTE] = minute
+        endCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+        endCalendar.set(Calendar.MINUTE, minute)
+        endCalendar.set(Calendar.SECOND, 0)
+        endCalendar.set(Calendar.MILLISECOND, 0)
 
-        val startCalendar = Calendar.getInstance()
-        startCalendar.add(Calendar.SECOND, SignalDetection.LAG_SECONDS)
-
-        if (endCalendar <= Calendar.getInstance()) {
+        if (endCalendar <= currentTime) {
             endCalendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
