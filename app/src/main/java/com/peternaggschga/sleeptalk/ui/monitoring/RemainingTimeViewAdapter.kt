@@ -15,24 +15,10 @@ class RemainingTimeViewAdapter(
     updateLooper: Looper = Looper.getMainLooper()
 ) : Observer<Long> {
     init {
-        val onValueChangeListener = NumberPicker.OnValueChangeListener { _, _, _ ->
-            run {
-                handler.removeCallbacks(updateRunnable)
-                val calendar = Calendar.getInstance().apply {
-                    timeInMillis = 0
-                    add(Calendar.HOUR, hourNumberPicker.value)
-                    add(Calendar.MINUTE, minuteNumberPicker.value)
-                }
-                monitoringViewModel.setEndingTime(SystemClock.elapsedRealtime() + calendar.timeInMillis)
-            }
-        }
-
         hourNumberPicker.setFormatter(TIME_FORMATTER)
-        hourNumberPicker.setOnValueChangedListener(onValueChangeListener)
         hourNumberPicker.maxValue = 23
 
         minuteNumberPicker.setFormatter(TIME_FORMATTER)
-        minuteNumberPicker.setOnValueChangedListener(onValueChangeListener)
         minuteNumberPicker.maxValue = 59
     }
 
