@@ -4,8 +4,8 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.icu.util.Calendar
 import android.os.Bundle
-import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,10 +40,9 @@ class MonitoringFragment : Fragment() {
 
         // TODO: persist MonitoringViewModel (observer stops when application is closed)
 
-        monitoringViewModel.endingTime.observe(
+        monitoringViewModel.timeTillEnd.observe(
             viewLifecycleOwner,
             RemainingTimeViewAdapter(
-                monitoringViewModel,
                 binding.numberPickerHours,
                 binding.numberPickerMinutes
             )
@@ -70,9 +69,10 @@ class MonitoringFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if ((monitoringViewModel.endingTime.value ?: 0)
-                <= SystemClock.elapsedRealtime() + SignalDetection.LAG_SECONDS * 1000
-            ) {
+            val lagDelayedTime = Calendar.getInstance().apply {
+                add(Calendar.SECOND, SignalDetection.LAG_SECONDS)
+            }.time
+            if ((monitoringViewModel.endingTime.value ?: lagDelayedTime) <= lagDelayedTime) {
                 Toast.makeText(
                     context,
                     "Please select how long you will be sleeping first!", // TODO: use string resource

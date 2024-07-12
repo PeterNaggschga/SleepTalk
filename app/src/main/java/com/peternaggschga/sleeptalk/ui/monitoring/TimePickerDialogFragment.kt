@@ -5,7 +5,6 @@ import android.app.TimePickerDialog
 import android.app.TimePickerDialog.OnTimeSetListener
 import android.icu.util.Calendar
 import android.os.Bundle
-import android.os.SystemClock
 import android.text.format.DateFormat
 import android.widget.TimePicker
 import androidx.fragment.app.DialogFragment
@@ -45,9 +44,6 @@ class TimePickerDialogFragment : DialogFragment(), OnTimeSetListener {
             endCalendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
-        monitoringViewModel.setEndingTime(
-            SystemClock.elapsedRealtime() +
-                    (endCalendar.timeInMillis - Calendar.getInstance().timeInMillis)
-        )
+        monitoringViewModel.setEndingTime(endCalendar.time)
     }
 }

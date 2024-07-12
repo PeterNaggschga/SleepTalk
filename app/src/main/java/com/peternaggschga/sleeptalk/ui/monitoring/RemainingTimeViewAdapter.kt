@@ -1,19 +1,13 @@
 package com.peternaggschga.sleeptalk.ui.monitoring
 
-import android.icu.util.Calendar
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
 import android.util.Log
 import android.widget.NumberPicker
 import androidx.lifecycle.Observer
 
 class RemainingTimeViewAdapter(
-    private val monitoringViewModel: MonitoringViewModel,
     private val hourNumberPicker: NumberPicker,
-    private val minuteNumberPicker: NumberPicker,
-    updateLooper: Looper = Looper.getMainLooper()
-) : Observer<Long> {
+    private val minuteNumberPicker: NumberPicker
+) : Observer<Pair<Int, Int>> {
     init {
         hourNumberPicker.setFormatter(TIME_FORMATTER)
         hourNumberPicker.maxValue = 23
@@ -68,27 +62,8 @@ class RemainingTimeViewAdapter(
         }
     }
 
-    private val handler = Handler(updateLooper)
-
-    private val updateRunnable = object : Runnable {
-        // TODO: move update process to MonitoringViewModel (make time until end a LiveData<Calendar>)
-        override fun run() {
-            val calendar = Calendar.getInstance().apply {
-                timeInMillis =
-                    monitoringViewModel.endingTime.value?.minus(SystemClock.elapsedRealtime()) ?: 0
-                add(Calendar.DAY_OF_YEAR, 1)
-                add(Calendar.HOUR, -1)
-                add(Calendar.SECOND, 59)
-            }
-            changeValue(hourNumberPicker, calendar[Calendar.HOUR])
-            changeValue(minuteNumberPicker, calendar[Calendar.MINUTE])
-
-            handler.postDelayed(this, 500)
-        }
-    }
-
-    override fun onChanged(value: Long) {
-        handler.removeCallbacks(updateRunnable)
-        handler.post(updateRunnable)
+    override fun onChanged(value: Pair<Int, Int>) {
+        changeValue(hourNumberPicker, value.first)
+        changeValue(minuteNumberPicker, value.second)
     }
 }
