@@ -1,11 +1,14 @@
 package com.peternaggschga.sleeptalk.ui.monitoring
 
+import android.content.Context
 import android.icu.util.Calendar
 import android.os.Handler
 import android.os.Looper
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.peternaggschga.sleeptalk.domain.monitoring.SignalDetection
 import java.time.Duration
 import java.util.Date
 
@@ -48,8 +51,17 @@ class MonitoringViewModel(
     private val _timeTillEnd = MutableLiveData<Pair<Int, Int>>()
     val timeTillEnd: LiveData<Pair<Int, Int>> = _timeTillEnd
 
-    fun setEndingTime(time: Date) {
-        if (time <= (endingTime.value ?: Calendar.getInstance().time)) {
+    fun setEndingTime(time: Date, context: Context) {
+        if (time.toInstant().isBefore(
+                Calendar.getInstance().time.toInstant()
+                    .plusSeconds(SignalDetection.LAG_SECONDS.toLong())
+            )
+        ) {
+            Toast.makeText(
+                context,
+                "The timeframe you chose is too short!", // TODO: use string resource
+                Toast.LENGTH_LONG
+            ).show()
             return
         }
         _endingTime.value = time

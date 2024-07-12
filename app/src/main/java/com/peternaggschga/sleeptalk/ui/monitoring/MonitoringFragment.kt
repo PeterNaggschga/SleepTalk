@@ -4,19 +4,16 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.icu.util.Calendar
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.peternaggschga.sleeptalk.databinding.FragmentMonitoringBinding
 import com.peternaggschga.sleeptalk.domain.monitoring.MonitoringService
-import com.peternaggschga.sleeptalk.domain.monitoring.SignalDetection
 
 class MonitoringFragment : Fragment() {
 
@@ -66,18 +63,6 @@ class MonitoringFragment : Fragment() {
                     arrayOf(Manifest.permission.RECORD_AUDIO),
                     0
                 )
-                return@setOnClickListener
-            }
-
-            val lagDelayedTime = Calendar.getInstance().apply {
-                add(Calendar.SECOND, SignalDetection.LAG_SECONDS)
-            }.time
-            if ((monitoringViewModel.endingTime.value ?: lagDelayedTime) <= lagDelayedTime) {
-                Toast.makeText(
-                    context,
-                    "Please select how long you will be sleeping first!", // TODO: use string resource
-                    Toast.LENGTH_LONG
-                ).show()
                 return@setOnClickListener
             }
 

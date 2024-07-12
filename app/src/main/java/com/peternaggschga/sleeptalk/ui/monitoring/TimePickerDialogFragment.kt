@@ -44,6 +44,6 @@ class TimePickerDialogFragment : DialogFragment(), OnTimeSetListener {
             endCalendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
-        monitoringViewModel.setEndingTime(endCalendar.time)
+        monitoringViewModel.setEndingTime(endCalendar.time, requireActivity())
     }
 }
