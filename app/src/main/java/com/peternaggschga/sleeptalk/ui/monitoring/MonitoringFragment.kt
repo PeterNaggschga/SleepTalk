@@ -68,7 +68,9 @@ class MonitoringFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if ((monitoringViewModel.timeTillEnd.value ?: Pair(0, 0)) == Pair(0, 0)) {
+            if (!monitoringViewModel.timeTillEnd.isInitialized ||
+                monitoringViewModel.timeTillEnd.value == Pair(0, 0)
+            ) {
                 return@setOnClickListener
             }
 
