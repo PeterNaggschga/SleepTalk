@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -66,11 +67,13 @@ class MonitoringFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            val timeTillEnd = monitoringViewModel.timeTillEnd.value ?: return@setOnClickListener
+
             activity?.startService(
                 Intent(activity, MonitoringService::class.java).apply {
                     putExtra(
                         MonitoringService.INTENT_TIME_EXTRA_TAG,
-                        monitoringViewModel.endingTime.value
+                        SystemClock.uptimeMillis() + (timeTillEnd.first * 60 + timeTillEnd.second) * 60 * 1000
                     )
                 }
             )
