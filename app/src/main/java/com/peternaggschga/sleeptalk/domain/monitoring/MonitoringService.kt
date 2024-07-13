@@ -81,16 +81,28 @@ class MonitoringService : LifecycleService() {
             startId
         )
 
-        val stopTimeMillis = intent?.getLongExtra(INTENT_TIME_EXTRA_TAG, -1) ?: -1
-        if (stopTimeMillis <= 0) {
+        val stopDate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent?.getSerializableExtra(INTENT_TIME_EXTRA_TAG, Date::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent?.extras?.getSerializable(INTENT_TIME_EXTRA_TAG) as Date
+        }
+        if (stopDate?.before(Calendar.getInstance().time) != false) {
             stopMessage.sendToTarget()
         } else {
-            handler.sendMessageAtTime(stopMessage, stopTimeMillis)
-            stopTime = Calendar.getInstance().apply {
-                add(Calendar.MILLISECOND, (stopTimeMillis - SystemClock.uptimeMillis()).toInt())
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }.time
+            stopTime = stopDate
+
+            val millisUntilStop = stopDate.time - Calendar.getInstance().time.time
+            handler.sendMessageAtTime(stopMessage, millisUntilStop)
+
+            wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(
+                    PowerManager.PARTIAL_WAKE_LOCK,
+                    this@MonitoringService.javaClass.name
+                ).apply {
+                    acquire(millisUntilStop + 1000)
+                }
+            }
         }
 
         return START_REDELIVER_INTENT

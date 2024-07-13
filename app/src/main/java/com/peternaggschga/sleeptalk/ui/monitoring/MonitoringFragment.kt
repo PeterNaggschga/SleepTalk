@@ -9,7 +9,6 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.IBinder
-import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -77,7 +76,7 @@ class MonitoringFragment : Fragment() {
                 Intent(activity, MonitoringService::class.java).apply {
                     putExtra(
                         MonitoringService.INTENT_TIME_EXTRA_TAG,
-                        SystemClock.uptimeMillis() + (timeTillEnd.first * 60 + timeTillEnd.second) * 60 * 1000
+                        monitoringViewModel.endingTime.value
                     )
                 }
             )
