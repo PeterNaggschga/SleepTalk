@@ -14,6 +14,7 @@ import android.os.Message
 import android.os.PowerManager
 import android.os.PowerManager.WakeLock
 import android.os.Process
+import android.os.SystemClock
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
@@ -94,7 +95,7 @@ class MonitoringService : LifecycleService() {
             stopTime = stopDate
 
             val millisUntilStop = stopDate.time - Calendar.getInstance().time.time
-            handler.sendMessageAtTime(stopMessage, millisUntilStop)
+            handler.sendMessageAtTime(stopMessage, SystemClock.uptimeMillis() + millisUntilStop)
 
             wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
                 newWakeLock(
