@@ -69,7 +69,9 @@ class MonitoringFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            val timeTillEnd = monitoringViewModel.timeTillEnd.value ?: return@setOnClickListener
+            if ((monitoringViewModel.timeTillEnd.value ?: Pair(0, 0)) == Pair(0, 0)) {
+                return@setOnClickListener
+            }
 
             requireActivity().startService(
                 Intent(activity, MonitoringService::class.java).apply {
