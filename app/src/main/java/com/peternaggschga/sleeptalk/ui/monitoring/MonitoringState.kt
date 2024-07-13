@@ -1,6 +1,6 @@
 package com.peternaggschga.sleeptalk.ui.monitoring
 
-enum class MonitoringStatus {
+enum class MonitoringState {
     RUNNING,
     READY,
     STOPPED

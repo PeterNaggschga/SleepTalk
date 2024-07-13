@@ -95,12 +95,12 @@ class MonitoringFragment : Fragment() {
             setOutAnimation(requireContext(), android.R.anim.fade_out)
         }
 
-        monitoringViewModel.monitoringStatus.observe(
+        monitoringViewModel.monitoringState.observe(
             viewLifecycleOwner
         ) { value ->
             binding.buttonFlipper.displayedChild = when (value) {
-                MonitoringStatus.READY -> 1
-                MonitoringStatus.RUNNING -> 2
+                MonitoringState.READY -> 1
+                MonitoringState.RUNNING -> 2
                 else -> 0
             }
         }

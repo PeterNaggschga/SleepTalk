@@ -74,9 +74,9 @@ class MonitoringViewModel(
     private val _timeTillEnd = state.getLiveData<Pair<Int, Int>>(STATE_TIME_TILL_END_KEY)
     val timeTillEnd: LiveData<Pair<Int, Int>> = _timeTillEnd
 
-    private val _monitoringStatus =
-        state.getLiveData(STATE_MONITORING_KEY, MonitoringStatus.STOPPED)
-    val monitoringStatus: LiveData<MonitoringStatus> = _monitoringStatus
+    private val _monitoringState =
+        state.getLiveData(STATE_MONITORING_KEY, MonitoringState.STOPPED)
+    val monitoringState: LiveData<MonitoringState> = _monitoringState
 
     init {
         if (endingTime.value?.let { isInFuture(it) } == true) {
@@ -94,17 +94,17 @@ class MonitoringViewModel(
             return
         }
         _endingTime.value = time
-        _monitoringStatus.value = MonitoringStatus.READY
+        _monitoringState.value = MonitoringState.READY
 
         updateHandler.removeCallbacks(updateRunnable)
         updateHandler.post(updateRunnable)
     }
 
     fun setServiceRunning(running: Boolean) {
-        _monitoringStatus.value = if (running) {
-            MonitoringStatus.RUNNING
+        _monitoringState.value = if (running) {
+            MonitoringState.RUNNING
         } else {
-            MonitoringStatus.STOPPED
+            MonitoringState.STOPPED
         }
     }
 }
