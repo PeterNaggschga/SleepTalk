@@ -66,11 +66,6 @@ class MonitoringViewModel(
         }
     }
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is monitoring Fragment"
-    }
-    val text: LiveData<String> = _text
-
     // TODO: check if this works as expected
     private val _endingTime = state.getLiveData<Date>(STATE_ENDING_TIME_KEY)
     val endingTime: LiveData<Date> = _endingTime

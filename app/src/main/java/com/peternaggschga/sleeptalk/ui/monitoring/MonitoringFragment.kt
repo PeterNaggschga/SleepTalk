@@ -9,7 +9,6 @@ import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -30,11 +29,6 @@ class MonitoringFragment : Fragment() {
 
         _binding = FragmentMonitoringBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
-        val textView: TextView = binding.textMonitoring
-        monitoringViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
 
         // TODO: bind with MonitoringService
 
