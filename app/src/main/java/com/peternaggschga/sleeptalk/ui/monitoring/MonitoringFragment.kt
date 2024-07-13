@@ -47,14 +47,14 @@ class MonitoringFragment : Fragment() {
             )
         )
 
-        binding.buttonChooseTime.setOnClickListener {
+        binding.buttonStopped.setOnClickListener {
             TimePickerDialogFragment().show(
                 requireActivity().supportFragmentManager,
                 TimePickerDialogFragment.TAG
             )
         }
 
-        binding.buttonStartMonitoring.setOnClickListener {
+        binding.buttonReady.setOnClickListener {
             if (ActivityCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.RECORD_AUDIO
@@ -82,6 +82,27 @@ class MonitoringFragment : Fragment() {
                     )
                 }
             )
+            monitoringViewModel.setServiceRunning(true)
+        }
+
+        binding.buttonRunning.setOnClickListener {
+            monitoringViewModel.setServiceRunning(false)
+            TODO("cancel recording")
+        }
+
+        binding.buttonFlipper.apply {
+            setInAnimation(requireContext(), android.R.anim.fade_in)
+            setOutAnimation(requireContext(), android.R.anim.fade_out)
+        }
+
+        monitoringViewModel.monitoringStatus.observe(
+            viewLifecycleOwner
+        ) { value ->
+            binding.buttonFlipper.displayedChild = when (value) {
+                MonitoringStatus.READY -> 1
+                MonitoringStatus.RUNNING -> 2
+                else -> 0
+            }
         }
 
         return root
@@ -93,6 +114,7 @@ class MonitoringFragment : Fragment() {
             serviceBinder?.let { binder ->
                 binder.getService().stopTime?.let { time ->
                     monitoringViewModel.setEndingTime(time)
+                    monitoringViewModel.setServiceRunning(true)
                 }
             }
 

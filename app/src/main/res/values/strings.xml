@@ -2,4 +2,8 @@
     <string name="app_name">SleepTalk</string>
     <string name="title_monitoring">Monitoring</string>
     <string name="title_recordings">Recordings</string>
+
+    <string name="fragment_monitoring_button_stopped">Choose time</string>
+    <string name="fragment_monitoring_button_ready">Start sleep monitor</string>
+    <string name="fragment_monitoring_button_running">Stop sleep monitor</string>
 </resources>
