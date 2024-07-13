@@ -7,7 +7,6 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -34,6 +33,7 @@ class MonitoringViewModel(
         }
 
         private const val STATE_ENDING_TIME_KEY = "endingTime"
+        private const val STATE_TIME_TILL_END_KEY = "timeTillEnd"
 
         private fun isInFuture(time: Date) = time.toInstant().isBefore(
             Calendar.getInstance().time.toInstant()
@@ -66,11 +66,10 @@ class MonitoringViewModel(
         }
     }
 
-    // TODO: check if this works as expected
     private val _endingTime = state.getLiveData<Date>(STATE_ENDING_TIME_KEY)
     val endingTime: LiveData<Date> = _endingTime
 
-    private val _timeTillEnd = MutableLiveData<Pair<Int, Int>>()
+    private val _timeTillEnd = state.getLiveData<Pair<Int, Int>>(STATE_TIME_TILL_END_KEY)
     val timeTillEnd: LiveData<Pair<Int, Int>> = _timeTillEnd
 
     init {
