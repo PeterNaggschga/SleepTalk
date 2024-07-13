@@ -4,15 +4,20 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.icu.util.Calendar
+import android.os.Binder
 import android.os.Build
 import android.os.HandlerThread
+import android.os.IBinder
 import android.os.Message
 import android.os.Process
+import android.os.SystemClock
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.peternaggschga.sleeptalk.domain.soundfiles.Codec
+import java.util.Date
 
 class MonitoringService : LifecycleService() {
 
@@ -21,6 +26,9 @@ class MonitoringService : LifecycleService() {
     }
 
     private lateinit var handler: MonitoringServiceHandler
+
+    var stopTime: Date? = null
+        private set
 
     override fun onCreate() {
         super.onCreate()
@@ -73,14 +81,24 @@ class MonitoringService : LifecycleService() {
             startId
         )
 
-        val stopTime = intent?.getLongExtra(INTENT_TIME_EXTRA_TAG, -1) ?: -1
-        if (stopTime <= 0) {
+        val stopTimeMillis = intent?.getLongExtra(INTENT_TIME_EXTRA_TAG, -1) ?: -1
+        if (stopTimeMillis <= 0) {
             stopMessage.sendToTarget()
         } else {
-            handler.sendMessageAtTime(stopMessage, stopTime)
+            handler.sendMessageAtTime(stopMessage, stopTimeMillis)
+            stopTime = Calendar.getInstance().apply {
+                add(Calendar.MILLISECOND, (stopTimeMillis - SystemClock.uptimeMillis()).toInt())
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.time
         }
 
         return START_REDELIVER_INTENT
+    }
+
+    override fun onBind(intent: Intent): IBinder {
+        super.onBind(intent)
+        return binder
     }
 
     override fun onDestroy() {
@@ -92,5 +110,11 @@ class MonitoringService : LifecycleService() {
     override fun stopService(name: Intent?): Boolean {
         handler.sendEmptyMessage(MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING)
         return super.stopService(name)
+    }
+
+    private val binder = MonitoringBinder()
+
+    inner class MonitoringBinder : Binder() {
+        fun getService() = this@MonitoringService
     }
 }

@@ -2,9 +2,13 @@ package com.peternaggschga.sleeptalk.ui.monitoring
 
 import android.Manifest
 import android.app.Activity
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.IBinder
 import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
@@ -23,14 +27,18 @@ class MonitoringFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private var serviceBinder: MonitoringService.MonitoringBinder? = null
+
+    private val monitoringViewModel: MonitoringViewModel by activityViewModels { MonitoringViewModel.Factory }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        val monitoringViewModel: MonitoringViewModel by activityViewModels { MonitoringViewModel.Factory }
+        Intent(context, MonitoringService::class.java).also { intent ->
+            requireActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        }
 
         _binding = FragmentMonitoringBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
-        // TODO: bind with MonitoringService
 
         monitoringViewModel.timeTillEnd.observe(
             viewLifecycleOwner,
@@ -63,7 +71,7 @@ class MonitoringFragment : Fragment() {
 
             val timeTillEnd = monitoringViewModel.timeTillEnd.value ?: return@setOnClickListener
 
-            activity?.startService(
+            requireActivity().startService(
                 Intent(activity, MonitoringService::class.java).apply {
                     putExtra(
                         MonitoringService.INTENT_TIME_EXTRA_TAG,
@@ -74,6 +82,22 @@ class MonitoringFragment : Fragment() {
         }
 
         return root
+    }
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            serviceBinder = service as MonitoringService.MonitoringBinder
+            serviceBinder?.let { binder ->
+                binder.getService().stopTime?.let { time ->
+                    monitoringViewModel.setEndingTime(time)
+                }
+            }
+
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            serviceBinder = null
+        }
     }
 
     override fun onDestroyView() {
