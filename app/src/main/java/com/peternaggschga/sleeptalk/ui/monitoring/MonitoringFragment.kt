@@ -26,7 +26,7 @@ class MonitoringFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        val monitoringViewModel: MonitoringViewModel by activityViewModels()
+        val monitoringViewModel: MonitoringViewModel by activityViewModels { MonitoringViewModel.Factory }
 
         _binding = FragmentMonitoringBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -36,7 +36,7 @@ class MonitoringFragment : Fragment() {
             textView.text = it
         }
 
-        // TODO: persist MonitoringViewModel (observer stops when application is closed)
+        // TODO: bind with MonitoringService
 
         monitoringViewModel.timeTillEnd.observe(
             viewLifecycleOwner,

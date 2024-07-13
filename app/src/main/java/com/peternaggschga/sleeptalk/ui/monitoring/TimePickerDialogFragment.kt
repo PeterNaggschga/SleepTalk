@@ -16,7 +16,7 @@ class TimePickerDialogFragment : DialogFragment(), OnTimeSetListener {
         private const val ADDED_MINUTES = 8 * 60
     }
 
-    private val monitoringViewModel: MonitoringViewModel by activityViewModels()
+    private val monitoringViewModel: MonitoringViewModel by activityViewModels { MonitoringViewModel.Factory }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val calendar = Calendar.getInstance()
@@ -44,6 +44,6 @@ class TimePickerDialogFragment : DialogFragment(), OnTimeSetListener {
             endCalendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
-        monitoringViewModel.setEndingTime(endCalendar.time, requireActivity())
+        monitoringViewModel.setEndingTime(endCalendar.time)
     }
 }
