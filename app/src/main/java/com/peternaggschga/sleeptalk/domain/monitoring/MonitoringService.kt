@@ -1,6 +1,7 @@
 package com.peternaggschga.sleeptalk.domain.monitoring
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
@@ -10,8 +11,9 @@ import android.os.Build
 import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Message
+import android.os.PowerManager
+import android.os.PowerManager.WakeLock
 import android.os.Process
-import android.os.SystemClock
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
@@ -27,11 +29,14 @@ class MonitoringService : LifecycleService() {
 
     private lateinit var handler: MonitoringServiceHandler
 
+    private lateinit var wakeLock: WakeLock
+
     var stopTime: Date? = null
         private set
 
-    override fun onCreate() {
-        super.onCreate()
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
+
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.RECORD_AUDIO
@@ -56,10 +61,6 @@ class MonitoringService : LifecycleService() {
                 lifecycleScope
             )
         }
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
 
         ServiceCompat.startForeground(
             this,
@@ -117,6 +118,7 @@ class MonitoringService : LifecycleService() {
         super.onDestroy()
         handler.sendEmptyMessage(MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING)
         handler.looper.quitSafely()
+        wakeLock.release()
     }
 
     override fun stopService(name: Intent?): Boolean {
