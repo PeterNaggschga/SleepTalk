@@ -99,9 +99,9 @@ class MonitoringFragment : Fragment() {
             viewLifecycleOwner
         ) { value ->
             binding.buttonFlipper.displayedChild = when (value) {
+                MonitoringState.STOPPED, null -> 0
                 MonitoringState.READY -> 1
                 MonitoringState.RUNNING -> 2
-                else -> 0
             }
         }
 
