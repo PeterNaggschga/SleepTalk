@@ -88,7 +88,7 @@ class MonitoringFragment : Fragment() {
 
         binding.buttonRunning.setOnClickListener {
             monitoringViewModel.setServiceRunning(false)
-            TODO("cancel recording")
+            serviceBinder?.getService()?.stopSelf()
         }
 
         binding.buttonFlipper.apply {
@@ -99,6 +99,7 @@ class MonitoringFragment : Fragment() {
         monitoringViewModel.monitoringState.observe(
             viewLifecycleOwner
         ) { value ->
+            // TODO: use two buttons again (one for start/stop, one for time selection
             binding.buttonFlipper.displayedChild = when (value) {
                 MonitoringState.STOPPED, null -> 0
                 MonitoringState.READY -> 1
