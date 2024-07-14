@@ -65,6 +65,7 @@ class MonitoringFragment : Fragment() {
                     arrayOf(Manifest.permission.RECORD_AUDIO),
                     0
                 )
+                // TODO: show information that click must be repeated or start monitoring on permission granted
                 return@setOnClickListener
             }
 
