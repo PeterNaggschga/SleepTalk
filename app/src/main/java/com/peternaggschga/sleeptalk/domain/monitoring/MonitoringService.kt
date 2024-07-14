@@ -116,15 +116,19 @@ class MonitoringService : LifecycleService() {
     }
 
     override fun onDestroy() {
+        onStopCleanup()
         super.onDestroy()
-        handler.sendEmptyMessage(MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING)
-        handler.looper.quitSafely()
-        wakeLock.release()
     }
 
     override fun stopService(name: Intent?): Boolean {
-        handler.sendEmptyMessage(MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING)
+        onStopCleanup()
         return super.stopService(name)
+    }
+
+    private fun onStopCleanup() {
+        handler.sendEmptyMessage(MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING)
+        handler.looper.quitSafely()
+        wakeLock.release()
     }
 
     private val binder = MonitoringBinder()
