@@ -32,8 +32,7 @@ class MonitoringService : LifecycleService() {
 
     private lateinit var wakeLock: WakeLock
 
-    var stopTime: Date? = null
-        private set
+    private var stopTime: Date? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
@@ -112,7 +111,7 @@ class MonitoringService : LifecycleService() {
 
     override fun onBind(intent: Intent): IBinder {
         super.onBind(intent)
-        return binder
+        return MonitoringBinder()
     }
 
     override fun onDestroy() {
@@ -126,14 +125,16 @@ class MonitoringService : LifecycleService() {
     }
 
     private fun onStopCleanup() {
-        handler.sendEmptyMessage(MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING)
-        handler.looper.quitSafely()
-        wakeLock.release()
+        if (::handler.isInitialized) {
+            handler.sendEmptyMessage(MonitoringServiceHandler.MESSAGE_ID_STOP_RECORDING)
+        }
+        if (::wakeLock.isInitialized) {
+            wakeLock.release()
+        }
+        stopTime = null
     }
 
-    private val binder = MonitoringBinder()
-
     inner class MonitoringBinder : Binder() {
-        fun getService() = this@MonitoringService
+        val stopTime get() = this@MonitoringService.stopTime
     }
 }

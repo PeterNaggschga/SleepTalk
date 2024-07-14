@@ -26,18 +26,14 @@ class MonitoringFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    private var serviceBinder: MonitoringService.MonitoringBinder? = null
-
     private val monitoringViewModel: MonitoringViewModel by activityViewModels { MonitoringViewModel.Factory }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        Intent(context, MonitoringService::class.java).also { intent ->
-            requireActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE)
-        }
-
         _binding = FragmentMonitoringBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        updateStopTimeIfServiceIsRunning()
 
         monitoringViewModel.timeTillEnd.observe(
             viewLifecycleOwner,
@@ -75,20 +71,22 @@ class MonitoringFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            requireActivity().startService(
-                Intent(activity, MonitoringService::class.java).apply {
-                    putExtra(
-                        MonitoringService.INTENT_TIME_EXTRA_TAG,
-                        monitoringViewModel.endingTime.value
-                    )
-                }
-            )
+            Intent(activity, MonitoringService::class.java).apply {
+                putExtra(
+                    MonitoringService.INTENT_TIME_EXTRA_TAG,
+                    monitoringViewModel.endingTime.value
+                )
+            }.also { intent ->
+                requireActivity().startService(intent)
+            }
             monitoringViewModel.setServiceRunning(true)
         }
 
         binding.buttonRunning.setOnClickListener {
             monitoringViewModel.setServiceRunning(false)
-            serviceBinder?.getService()?.stopSelf()
+            Intent(activity, MonitoringService::class.java).also { intent ->
+                requireActivity().stopService(intent)
+            }
         }
 
         binding.buttonFlipper.apply {
@@ -110,20 +108,24 @@ class MonitoringFragment : Fragment() {
         return root
     }
 
-    private val connection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            serviceBinder = service as MonitoringService.MonitoringBinder
-            serviceBinder?.let { binder ->
-                binder.getService().stopTime?.let { time ->
+    private fun updateStopTimeIfServiceIsRunning() {
+        val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                val binder = service as MonitoringService.MonitoringBinder
+                binder.stopTime?.let { time ->
                     monitoringViewModel.setEndingTime(time)
                     monitoringViewModel.setServiceRunning(true)
                 }
+
+                requireActivity().unbindService(this)
             }
 
+            override fun onServiceDisconnected(name: ComponentName?) {
+            }
         }
 
-        override fun onServiceDisconnected(name: ComponentName?) {
-            serviceBinder = null
+        Intent(context, MonitoringService::class.java).also { intent ->
+            requireActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
     }
 
