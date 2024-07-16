@@ -10,7 +10,7 @@ class SignalDetection {
     companion object {
         const val LAG_SECONDS = 60 * 10
         const val LAG_FRAMES = LAG_SECONDS / MonitoringServiceHandler.SECONDS_PER_FRAME
-        const val THRESHOLD = 3.0
+        const val THRESHOLD = 4.0
         const val INFLUENCE = 0.5
     }
 
