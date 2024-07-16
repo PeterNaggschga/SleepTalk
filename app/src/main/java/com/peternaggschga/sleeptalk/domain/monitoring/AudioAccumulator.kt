@@ -6,6 +6,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlin.math.max
+import kotlin.math.min
 
 class AudioAccumulator(
     private val inputChannel: Channel<FloatArray>,
@@ -17,6 +19,7 @@ class AudioAccumulator(
             20 / MonitoringServiceHandler.SECONDS_PER_FRAME
         private const val INPUT_CHANNEL_BUFFER_SIZE = 60
         private const val OUTPUT_CHANNEL_BUFFER_SIZE = 5
+        private const val VOLUME_FACTOR = 16
 
         fun getInputChannel() = Channel<FloatArray>(INPUT_CHANNEL_BUFFER_SIZE)
         fun getOutputChannel() = Channel<List<Recording>>(OUTPUT_CHANNEL_BUFFER_SIZE)
@@ -32,6 +35,10 @@ class AudioAccumulator(
 
         for (element in inputChannel) {
             ensureActive()
+
+            for (index in element.indices) {
+                element[index] = min(1.0F, max(-1.0F, element[index] * VOLUME_FACTOR))
+            }
 
             val recording = Recording(
                 element,
