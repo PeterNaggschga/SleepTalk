@@ -1,6 +1,7 @@
 package com.peternaggschga.sleeptalk.ui.monitoring
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -59,6 +60,7 @@ class MonitoringFragment : Fragment() {
                 }
             }
 
+        @SuppressLint("BatteryLife")
         override fun run() {
             launcher.launch(
                 Intent(
