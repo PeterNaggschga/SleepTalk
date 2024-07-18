@@ -36,7 +36,7 @@ class MonitoringViewModel(
         private const val STATE_TIME_TILL_END_KEY = "timeTillEnd"
         private const val STATE_MONITORING_KEY = "monitoringState"
 
-        private fun isInFuture(time: Date) = time.toInstant().isBefore(
+        private fun isInFuture(time: Date) = time.toInstant().isAfter(
             Calendar.getInstance().time.toInstant()
                 .plusSeconds(SignalDetection.LAG_SECONDS.toLong())
         )
@@ -84,8 +84,8 @@ class MonitoringViewModel(
         }
     }
 
-    fun setEndingTime(time: Date) {
-        if (isInFuture(time)) {
+    fun setEndingTime(time: Date, userInput: Boolean = false) {
+        if (userInput && !isInFuture(time)) {
             Toast.makeText(
                 getApplication(),
                 "The timeframe you chose is too short!", // TODO: use string resource
