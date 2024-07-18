@@ -1,17 +1,20 @@
 package com.peternaggschga.sleeptalk.ui.monitoring
 
 import android.Manifest
-import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
+import android.os.PowerManager
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -19,6 +22,9 @@ import com.peternaggschga.sleeptalk.databinding.FragmentMonitoringBinding
 import com.peternaggschga.sleeptalk.domain.monitoring.MonitoringService
 
 class MonitoringFragment : Fragment() {
+    companion object {
+        private const val PACKAGE_NAME = "com.peternaggschga.sleeptalk"
+    }
 
     private var _binding: FragmentMonitoringBinding? = null
 
@@ -27,6 +33,41 @@ class MonitoringFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val monitoringViewModel: MonitoringViewModel by activityViewModels { MonitoringViewModel.Factory }
+
+    private val requestRecordPermission = object : Runnable {
+        private val launcher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                if (isGranted && requestPermissions()
+                    && monitoringViewModel.monitoringState.value == MonitoringState.READY
+                ) {
+                    binding.buttonReady.callOnClick()
+                }
+            }
+
+        override fun run() {
+            launcher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    private val requestIgnoreBatteryOptimization = object : Runnable {
+        private val launcher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+                if (isIgnoringBatteryOptimizations() && requestPermissions()
+                    && monitoringViewModel.monitoringState.value == MonitoringState.READY
+                ) {
+                    binding.buttonReady.callOnClick()
+                }
+            }
+
+        override fun run() {
+            launcher.launch(
+                Intent(
+                    Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                    Uri.parse("package:$PACKAGE_NAME")
+                )
+            )
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -51,17 +92,7 @@ class MonitoringFragment : Fragment() {
         }
 
         binding.buttonReady.setOnClickListener {
-            if (ActivityCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.RECORD_AUDIO
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    activity as Activity,
-                    arrayOf(Manifest.permission.RECORD_AUDIO),
-                    0
-                )
-                // TODO: show information that click must be repeated or start monitoring on permission granted
+            if (!requestPermissions()) {
                 return@setOnClickListener
             }
 
@@ -128,6 +159,29 @@ class MonitoringFragment : Fragment() {
             requireActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
     }
+
+    private fun requestPermissions(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestRecordPermission.run()
+            return false
+        }
+
+        if (!isIgnoringBatteryOptimizations()) {
+            requestIgnoreBatteryOptimization.run()
+            return false
+        }
+
+        return true
+    }
+
+    private fun isIgnoringBatteryOptimizations() =
+        (requireActivity().getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(
+            PACKAGE_NAME
+        )
 
     override fun onDestroyView() {
         super.onDestroyView()
