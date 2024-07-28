@@ -8,3 +8,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# don't save temporal model data
+model/google
