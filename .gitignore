@@ -13,3 +13,4 @@ local.properties
 model/audioset_v1_embeddings
 model/model.tflite
 model/future_training_data
+model/labels.csv
