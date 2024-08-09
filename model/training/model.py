@@ -67,13 +67,18 @@ class SleepTalkModel:
 
         # adding classification model
         model = Sequential([
-            vggish,
-            Lambda(lambda x: tf.expand_dims(x, axis=0)),  # add batch dimension
+            Input(shape=(None,), batch_size=1, dtype=tf.float32),
+            Lambda(lambda x: tf.map_fn(vggish, x)),
             self.classifier
         ])
-        model.build(input_shape=(None,))
 
         converter = tf.lite.TFLiteConverter.from_keras_model(model)
+        converter.target_spec.supported_ops = [
+            tf.lite.OpsSet.TFLITE_BUILTINS,  # Enable TensorFlow Lite ops.
+            tf.lite.OpsSet.SELECT_TF_OPS  # Enable TensorFlow ops.
+        ]
+        converter._experimental_lower_tensor_list_ops = False
+
         tflite_model = converter.convert()
 
         with tf.io.gfile.GFile(filename, "wb") as file:
