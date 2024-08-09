@@ -1,8 +1,8 @@
 import argparse
 
-from data_extraction import DataExtraction
-from model import SleepTalkModel
-from tensor_conversion import transform_to_tensor
+from model.data_extraction import DataExtraction
+from model.model import SleepTalkModel
+from model.tensor_conversion import transform_to_tensor
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--classes", "-c", default="classes.csv",
