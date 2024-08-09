@@ -6,6 +6,7 @@ from tf_keras import Sequential
 from tf_keras.layers import Conv1D, MaxPooling1D, GlobalMaxPooling1D, Dropout, Dense, Input, Lambda
 
 
+# TODO: Documentation
 class SleepTalkModel:
     def __init__(self, nr_classes: int, optimizer: str = "adam", loss: str = "binary_crossentropy",
                  metrics: list[str] = None):
