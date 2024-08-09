@@ -10,4 +10,4 @@
 local.properties
 
 # don't save temporal model data
-model/google
+model/audioset_v1_embeddings
