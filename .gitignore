@@ -11,3 +11,4 @@ local.properties
 
 # don't save temporal model data
 model/audioset_v1_embeddings
+model/model.tflite
