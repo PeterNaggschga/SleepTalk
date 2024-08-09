@@ -1,0 +1,8 @@
+class,in_output_vector,synonyms
+SPEECH,True,"['Speech', 'Shout', 'Whispering']"
+SNORE,True,['Snoring']
+SIGH,True,"['Sigh', 'Groan', 'Grunt']"
+FART,True,"['Stomach rumble', 'Fart']"
+BREATH,True,"['Yawn', 'Sniff', 'Wheeze', 'Gasp', 'Pant', 'Snort']"
+COUGH,True,"['Cough', 'Sneeze']"
+NONE,False,"['Chewing, mastication', 'Biting', 'Burping, eructation', 'Bang', 'Slap, smack', 'Whack, thwack', 'Smash, crash', 'Knock', 'Tap', 'Flap', 'Vehicle', 'Alarm', 'Door', 'Thunderstorm', 'Wind', 'Water', 'Noise']"
