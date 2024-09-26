@@ -21,7 +21,7 @@ args = parser.parse_args()
 
 if not os.path.isdir(args.data_dir):
     print(f"New training data must be placed in {args.data_dir} directory!")
-    exit()
+    exit(1)
 
 classes = []
 with open(args.classes, newline='') as class_file:
