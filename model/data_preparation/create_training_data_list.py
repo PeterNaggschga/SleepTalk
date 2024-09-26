@@ -5,14 +5,16 @@ import os
 import librosa
 import numpy as np
 
-from data_preparation.tflite_model import TFLiteModel
+from tflite_model import TFLiteModel
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--model-file", "-m", default="model.tflite",
+parser.add_argument("--model-file", "-m", default=os.path.join(os.pardir, "model.tflite"),
                     help="Path to the TFLite model used to pre-classify new data.")
-parser.add_argument("--data-dir", "-d", default="future_training_data", help="Directory containing the new data.")
+parser.add_argument("--data-dir", "-d", default=os.path.join(os.pardir, "future_training_data"),
+                    help="Directory containing the new data.")
 parser.add_argument("--label-csv", "-l", default="labels.csv", help="File that is written.")
-parser.add_argument("--classes", "-c", default="classes.csv", help="Path to csv-file containing the available classes.")
+parser.add_argument("--classes", "-c", default=os.path.join(os.pardir, "classes.csv"),
+                    help="Path to csv-file containing the available classes.")
 parser.add_argument("--all-zero", "-z", default=False, action=argparse.BooleanOptionalAction,
                     help="If selected, no model is used for pretraining and every sample is initialized with only "
                          "zeros as labels.")
