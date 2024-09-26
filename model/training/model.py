@@ -27,8 +27,8 @@ class SleepTalkModel:
 
         # adding layers for classification
         result.add(Conv1D(64, kernel_size=5, strides=1, padding="same", activation="relu", data_format="channels_last"))
-        result.add(MaxPooling1D(padding="same", data_format="channels_last"))
-        result.add(Dropout(0.3))
+        result.add(MaxPooling1D(padding="same", data_format="channels_last"))  # TODO: check whether helpful
+        result.add(Dropout(0.3))  # TODO: check whether helpful
 
         result.add(
             Conv1D(128, kernel_size=5, strides=1, padding="same", activation="relu", data_format="channels_last"))
