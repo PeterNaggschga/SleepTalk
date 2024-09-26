@@ -16,7 +16,7 @@ class DataExtraction:
     def __init__(self, class_file: str = "classes.csv", google_data_dir: str = "audioset_v1_embeddings",
                  google_label_file: str = "labels.csv"):
         self.google_data_dir = google_data_dir
-        self.google_label_file = f"{google_data_dir}/{google_label_file}"
+        self.google_label_file = os.path.join(google_data_dir, google_label_file)
         self.classes = []
         self.no_class = ""
 
@@ -101,9 +101,9 @@ class DataExtraction:
     def retrieve_google_data(self, train_dir: str = "bal_train") \
             -> tuple[list[tuple[np.ndarray, np.ndarray]], list[tuple[np.ndarray, np.ndarray]]]:
         self.download_google_data()
-        train_dir = f"{self.google_data_dir}/{train_dir}"
+        train_dir = os.path.join(self.google_data_dir, train_dir)
 
-        filenames = [f"{train_dir}/{file}" for file in os.listdir(train_dir)]
+        filenames = (os.path.join(train_dir, file) for file in os.listdir(train_dir))
         with ConcurrentExecutor() as pool:
             intermediate_results = pool.map(self._get_file_content, filenames)
 
