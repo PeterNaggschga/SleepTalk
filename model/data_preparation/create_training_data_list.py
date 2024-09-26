@@ -42,7 +42,7 @@ def get_labels(path: str) -> list[int]:
     return [int(round(x)) for x in model(np.array([pcm]))[0]]
 
 
-new_files = (f"{args.data_dir}/{filename}" for filename in os.listdir(args.data_dir))
+new_files = (os.path.join(args.data_dir, filename) for filename in os.listdir(args.data_dir))
 
 if args.all_zero:
     labels = ([0] * len(classes) for _ in new_files)
