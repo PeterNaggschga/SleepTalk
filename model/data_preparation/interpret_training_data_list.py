@@ -102,8 +102,10 @@ with ThreadPoolExecutor() as pool:
     sequence_examples = pool.map(get_sequence_example, labels.itertuples(index=False))
 
     sequence_examples_split = split(list(sequence_examples), args.samples_per_file)
+
+    quantize_string = "q" if args.quantize else "nq"
     sequence_examples_split = (
-        (f"{filename}_{i}.tfrecord", examples) for i, examples in enumerate(sequence_examples_split)
+        (f"{filename}_{i}_{quantize_string}.tfrecord", examples) for i, examples in enumerate(sequence_examples_split)
     )
 
     pool.map(write_tfrecord, sequence_examples_split)
